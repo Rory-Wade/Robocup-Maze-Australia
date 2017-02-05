@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rplidar_driver", "rplidar_driver\rplidar_driver.vcproj", "{4A7EBFDC-324D-4793-9CDC-4EB60766456A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "frame_grabber", "frame_grabber\frame_grabber.vcproj", "{9DEA5835-3627-4CAB-B600-B1F4780F7C44}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simple_grabber", "simple_grabber\simple_grabber.vcproj", "{9517D5B3-5F5E-4488-8707-8C975DE41CF5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ultra_simple", "ultra_simple\ultra_simple.vcproj", "{254292DF-B9CF-4100-811C-A58EC8F796C8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A7EBFDC-324D-4793-9CDC-4EB60766456A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4A7EBFDC-324D-4793-9CDC-4EB60766456A}.Debug|Win32.Build.0 = Debug|Win32
+		{4A7EBFDC-324D-4793-9CDC-4EB60766456A}.Release|Win32.ActiveCfg = Release|Win32
+		{4A7EBFDC-324D-4793-9CDC-4EB60766456A}.Release|Win32.Build.0 = Release|Win32
+		{9DEA5835-3627-4CAB-B600-B1F4780F7C44}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9DEA5835-3627-4CAB-B600-B1F4780F7C44}.Debug|Win32.Build.0 = Debug|Win32
+		{9DEA5835-3627-4CAB-B600-B1F4780F7C44}.Release|Win32.ActiveCfg = Release|Win32
+		{9DEA5835-3627-4CAB-B600-B1F4780F7C44}.Release|Win32.Build.0 = Release|Win32
+		{9517D5B3-5F5E-4488-8707-8C975DE41CF5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9517D5B3-5F5E-4488-8707-8C975DE41CF5}.Debug|Win32.Build.0 = Debug|Win32
+		{9517D5B3-5F5E-4488-8707-8C975DE41CF5}.Release|Win32.ActiveCfg = Release|Win32
+		{9517D5B3-5F5E-4488-8707-8C975DE41CF5}.Release|Win32.Build.0 = Release|Win32
+		{254292DF-B9CF-4100-811C-A58EC8F796C8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{254292DF-B9CF-4100-811C-A58EC8F796C8}.Debug|Win32.Build.0 = Debug|Win32
+		{254292DF-B9CF-4100-811C-A58EC8F796C8}.Release|Win32.ActiveCfg = Release|Win32
+		{254292DF-B9CF-4100-811C-A58EC8F796C8}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
