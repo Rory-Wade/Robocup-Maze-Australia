@@ -31,14 +31,21 @@ class lidarCMD:
     def health(self):
         return self.lidar.get_health()
     
-    def push_readings(self,arr):
+    def push_scan(self,arr):
         #[loop, time of scan, run time, DATA (in array of 360)]
-        self.scanData = arr
+        self.scanData.append(arr)
         
-    def pull_readings(self):
+        if len(self.scanData) > 3: #keep the stack relevant
+            self.scanData.pop(1)
+        
+    def peak_scan(self):
         #[loop, time of scan, run time, DATA (in array of 360)]
-        return self.scanData
+        return self.scanData[0]
     
+    def pop_scan(self):
+        #[loop, time of scan, run time, DATA (in array of 360)]
+        return self.scanData.pop(0)
+        
     def startScan(self):
         if not self.scan_in_progress:
             try:
@@ -84,7 +91,7 @@ class lidarCMD:
                             startTime = time.time()
                             
                             #print("\nLoop: {} scan time: {} timestamp: {} Readings: \n\n{}".format(currLoop, scanTime , time.time(),lidarReadingsAVG))
-                            self.push_readings([currLoop, scanTime, time.time(), lidarReadingsAVG])
+                            self.push_scan([currLoop, scanTime, time.time(), lidarReadingsAVG])
                             lidarReadingsAVG = [None] * 360
         
                     try:
@@ -101,13 +108,16 @@ class lidarCMD:
             
     
 if __name__ == '__main__':
-   
+
    lidar = lidarCMD('/dev/ttyUSB0')
+   
    print(lidar.port())
    print(lidar.health())
-   
+
    lidar.startScan()
    
-   time.sleep(5)
-   print(lidar.pull_readings())
+   while True:
+       
+       print("{} \n".format(lidar.pop_scan()))
+       time.sleep(5)
 
