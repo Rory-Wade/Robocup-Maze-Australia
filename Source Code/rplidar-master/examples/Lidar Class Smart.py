@@ -22,8 +22,9 @@ PORT_NAME_MAC = '/dev/tty.SLAB_USBtoUART'
 PORT_NAME = '/dev/ttyUSB0'
 
 AVGLOOP = 3 #amount of scans averaged before release
+MaxQueue = 3
 
-class lidarCMD:
+class lidar:
     def __init__(self, PORT):
 
         self.PORT_NAME = PORT
@@ -50,7 +51,7 @@ class lidarCMD:
         #[loop, time of scan, run time, DATA (in array of 360)]
         self.scanData.append(arr)
 
-        if len(self.scanData) > 3: #keep the stack relevant by popping oldest value
+        if self.queueFull(): #keep the stack relevant by popping oldest value
             self.scanData.pop(0)
 
     def peak_scan(self):
@@ -60,6 +61,13 @@ class lidarCMD:
     def scan_avaliable(self):
         #returns true if there is data
         if len(self.scanData) > 0: #keep the stack relevant
+            return True
+
+        return False
+
+    def queueFull(self):
+        #returns true if there is data
+        if len(self.scanData) >= MaxQueue: #keep the stack relevant
             return True
 
         return False
@@ -94,9 +102,11 @@ class lidarCMD:
         try:
             print("Lidar Satus: {}\tCode: {} \n Recording measurments... Press Crl+C to stop.".format(self.health()[0], self.health()[1])) #find exception before function start
 
-            
+            scansPerRelease = AVGLOOP
+
             lidarReadingsAVG = [None] * 360
             currLoop = 0
+            newScanLoop = 0
             scanTime = 0
             startTime = time.time()
 
@@ -108,10 +118,17 @@ class lidarCMD:
 
                     if measurment[0] == True:
                         currLoop += 1
+                        newScanLoop += 1
 
-                        if currLoop % AVGLOOP == 0:
+                        if newScanLoop % scansPerRelease == 0:
                             scanTime = (scanTime + (time.time() - startTime))/2
                             startTime = time.time()
+
+                            if self.queueFull():
+                                scansPerRelease += 1
+                                newScanLoop = 0
+                            elif scansPerRelease > 1:
+                                scansPerRelease -= 1
 
                             self.push_scan([currLoop, scanTime, time.time(), lidarReadingsAVG])
                             lidarReadingsAVG = [None] * 360
