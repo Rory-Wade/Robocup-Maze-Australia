@@ -6,6 +6,7 @@ import time
 import zmq
 import json
 import atexit
+import threading
 
 from rplidar import RPLidar
 
@@ -31,28 +32,34 @@ def exit_handler():
     lidar.stop()
     print('Done')
 
-atexit.register(exit_handler)
-
 def readLidar():
     '''Main function'''
     
     global lidarArray
-    
-    count = 0
-    
-    for measurement in lidar.iter_measurments():
-  
-        lidarArray[int(measurement[2]) % 360] = measurement[3]
-        
-        if measurement[0]:
-            randomVal = 1
-            socket.send_string("[LIDAR]:%s" % (json.dumps(lidarArray, ensure_ascii=True)))
-            
+    try:
+        while True:
+            #with lidarArray.Lock:
+            first_measurement = None
+                
+            for measurement in lidar.iter_measurments():
+                
+                lidarArray[int(measurement[2]) % 360] = measurement[3]
+                    
+                    #if measurement[0]:
+                        #SEND
+
+    except:
+        print("Encounted an error...")
+        lidar.connect()
+         
+    pass
+
+            #socket.send_string("%s:%s" % (message, json.dumps(lidarArray, ensure_ascii=True)))
+
+atexit.register(exit_handler)
+readLidar()
+
 if __name__ == '__main__':
-    readLidar()
-    
-    while True:
-        i = 1 
-        #print(lidarArray)
+    print("Main Code Run")
      
 
