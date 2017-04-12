@@ -52,7 +52,6 @@ socket.bind("tcp://*:5556")
 
 print(lidar.get_info())
 print(lidar.get_health())
-lidar.set_pwm(500)
 
 try:
     lidarArray = [[0] * 36, [0] * 36]
@@ -63,9 +62,9 @@ try:
             lidarArray[1][index] = lidarArray[1][index] + 1
             lidarArray[0][index] = round(lidarArray[0][index] + ((measurement - lidarArray[0][index]) / lidarArray[1][index]), 0)
         
-        socket.send_string("%s %s" % ("[LIDAR]", json.dumps(lidarArray[0], ensure_ascii=True)))
+        socket.send_string("%s %s" % ("[LIDAR]:", json.dumps(lidarArray[0], ensure_ascii=True)))
         lidarArray = [[0] * 36, [0] * 36]
-        time.sleep(0.1)
+        time.sleep(0.05)
 except Exception as e:
     print(e)
     print("Caught error, safely stopping lidar")

@@ -23,6 +23,7 @@ PORT_NAME = '/dev/ttyUSB0'
 lidar = RPLidar(PORT_NAME)
 lidar.connect()
 
+
 print(lidar.get_health())
 
 lidarArray = [0] * 360
@@ -32,6 +33,13 @@ def exit_handler():
     lidar.stop()
     print('Done')
 
+try:
+    lidar.stop_motor()
+    # lidar.set_pwm(256)
+except:
+    print("Failed to setup pwm")
+    exit_handler()
+    
 def readLidar():
     '''Main function'''
     

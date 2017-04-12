@@ -1,5 +1,6 @@
 import zmq
 import time
+import json
 
 context = zmq.Context()
 socket = context.socket(zmq.SUB)
@@ -11,5 +12,7 @@ filter = filter.decode('ascii')
 socket.setsockopt_string(zmq.SUBSCRIBE, filter)
 
 while True:
-    string = socket.recv_string()
-    print("Got: %s\n\n\n\n " % (string))
+    lidarINPUT = socket.recv_string().split(":")
+    lidarINPUT = json.loads(lidarINPUT[1])
+    
+    print("N: %s E: %s S: %s W: %s \n\n\n\n " % (lidarINPUT[0],lidarINPUT[9],lidarINPUT[18],lidarINPUT[27],))

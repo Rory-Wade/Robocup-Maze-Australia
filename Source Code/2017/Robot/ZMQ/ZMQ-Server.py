@@ -1,25 +1,16 @@
-#
-#   Hello World server in Python
-#   Binds REP socket to tcp://*:5555
-#   Expects b"Hello" from client, replies with b"World"
-#
-import json
-import time
 import zmq
+from random import randrange
 
 context = zmq.Context()
-socket = context.socket(zmq.REP)
-socket.bind("tcp://*:5555")
+socket = context.socket(zmq.PUB)
+socket.set_hwm(1)
 
-print("Done")
 
+socket.bind("tcp://*:5556")
+
+temperature = 0
 while True:
-    #  Wait for next request from client
-    message = socket.recv()
-    print("Received request: %s" % message)
+    temperature = temperature + 1 # randrange(-80, 135)
+    relhumidity = randrange(10, 60)
 
-    #  Do some 'work'
-    time.sleep(1)
-
-    #  Send reply back to client
-    socket.send( json.dumps([0,0,0] , ensure_ascii=True)) 
+    socket.send_string("%s %i %i" % ("Accelerometer", temperature, relhumidity))

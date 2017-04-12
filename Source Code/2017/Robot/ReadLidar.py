@@ -16,7 +16,7 @@ import sys
 import time
 import threading
 
-from rplidar import RPLidar
+import rplidar
 
 PORT_NAME_MAC = '/dev/tty.SLAB_USBtoUART'
 PORT_NAME = '/dev/ttyUSB0'

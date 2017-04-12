@@ -69,6 +69,8 @@ def callMotors(direction):
     elif direction == 3:
         #TURN LEFT
         turn(getCurrentAngle(),270)
+    elif direction == 2:
+        turn(getCurrentAngle(),180)
 
 
 #where maptile is 0, then it's unknown and unexplored. 9 is wall, and 1 is explored.
