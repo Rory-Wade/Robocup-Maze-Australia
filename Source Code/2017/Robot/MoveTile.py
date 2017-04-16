@@ -1,6 +1,7 @@
 import zmq
 import time
 import json
+import atexit
 from Accel import *
 
 context = zmq.Context()
@@ -18,11 +19,25 @@ socket.setsockopt_string(zmq.SUBSCRIBE, filter)
 global currentDirection
 currentDirection = 0
 
-KP = 3.5
-KI = 0.45
-Kd = 0.5
+KP = 0.5
+KI = 0.01
+KD = 0.1
 
-baseMotorSpeed = 40
+integral = 0
+derivative = 0
+proportion = 0
+
+last_error = 0
+
+baseMotorSpeed = 45
+
+tileSize = 320
+
+def exit_handler():
+    print 'Program Shutting Down...'
+    StopMotors()
+    
+atexit.register(exit_handler)
 
 def turn(currentAngle,toAngle):
     
@@ -50,24 +65,12 @@ def turn(currentAngle,toAngle):
     time.sleep(0.05)
     return turn(getCurrentAngle(),toAngle)
 
-def callMotors(direction):
-
-    print("DIRECTION TO MOVE")
-    print(direction)
-    if direction == 1:
-        
-        turn(getCurrentAngle(),90)
-    elif direction == 3:
-
-        turn(getCurrentAngle(),270)
-        
 def moveDirection(direction):
     global currentDirection
     
     print("DIRECTION TO MOVE %i" % (direction))
     currentDirection = direction
     print("Current DIRECTION TO MOVE %i" % (currentDirection))
-    
     
     if direction == 0:
         turn(getCurrentAngle(),0)
@@ -77,7 +80,12 @@ def moveDirection(direction):
         turn(getCurrentAngle(),180)
     elif direction == 3:
         turn(getCurrentAngle(),270)
+
+def relativeTurn(direction):
+    global currentDirection
     
+    direction = (currentDirection + direction) % 4
+    moveDirection(direction)
 
 def readLidar():
     lidarINPUT = socket.recv_string().split(":")
@@ -92,7 +100,23 @@ def StopMotors():
     motors.send(b"%i,%i" % (0,0))
     message = motors.recv()
 
+def MovingForward(lidarData):
+    if numberFitsEnvelope(lidarData[0], 15):
+        print("FITS THE ENVELOPE MY DUDE")
+        return False
+    return True
+    
+def numberFitsEnvelope(number, envelope):
+    if number < (150) or abs((number % tileSize) - (tileSize / 2)) < (tileSize / envelope):
+        return True
+    return False
+    
 def PID():
+    global proportion
+    global integral
+    global derivative
+    global last_error
+    
     angle = getCurrentAngle()
     
     if currentDirection == 0:
@@ -102,26 +126,44 @@ def PID():
     else:
         angle = ((90 * currentDirection)  - angle) * -1
     
-    angle = angle * 2
+    proportion = angle
     
-    MoveMotors(baseMotorSpeed - angle,baseMotorSpeed + angle)  
+    integral  += proportion
+    derivative = proportion - last_error
+    last_error = proportion
+    
+    turn = KP*proportion + KI*integral + KD*derivative
+    
+    #print("Motor speed indifferent: %f %f" % (turn,angle))
+    MoveMotors(baseMotorSpeed - turn,baseMotorSpeed + turn)  
     
 print("ONLINE")
 
 while True:
     lidarArray = readLidar()
 
-    if lidarArray[0] > 200:
-        #print("N: %s E: %s S: %s W: %s \n\n\n\n " % (lidarINPUT[0],lidarINPUT[9],lidarINPUT[18],lidarINPUT[27],))
+    if MovingForward(lidarArray):
+        
         #MoveMotors(40,40)
         PID()
     else:
-        MoveMotors(0,0)
-        if currentDirection == 0:
-            print("Turn 2 current: %i" % (currentDirection))
-            moveDirection(2)
-        else:
-            print("Turn 0 current: %i" % (currentDirection))
-            moveDirection(0)
+        StopMotors()
+        
+        print("----LIDAR MEASUREMENTS REL----")
+        print("  LEFT, RIGHT, FORWARD, BACK")
+        print(lidarArray[9],lidarArray[27],lidarArray[0],lidarArray[18])
+        print("------------------------------")
+
+        
+        if lidarArray[0] > 350:
+            relativeTurn(0)
+        elif lidarArray[9] > 350:
+            relativeTurn(1)
+        elif lidarArray[27] > 350:
+            relativeTurn(3)
+        elif lidarArray[18] > 350:
+            relativeTurn(2)
+            
+            
         
     

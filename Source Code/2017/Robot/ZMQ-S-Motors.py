@@ -228,6 +228,16 @@ class ServoController:
       raise ValueError( "GetPosition didn't get two parameters!")
     return _DeWire(res.parameters)
 
+  def GetVoltage(self, id):
+    """
+    Return the current position of the servo. See the user manual, page 16,
+    for what the return value means.
+    """
+    _VerifyID(id)
+    packet = READ_DATA + VOLTAGE + [1]
+    res = self.Interact(id, packet).Verify()
+    return res.parameters[0]
+    
   def GetPositionDegrees(self, id):
     """
     If you'd rather work in degrees, use this one. Again, see the user manual,
@@ -449,10 +459,18 @@ motorFR = 4
 motorBL = 1
 motorBR = 3
 
-motorDriver.SetWheelMode(motorFL,True)
-motorDriver.SetWheelMode(motorBL,True)
-motorDriver.SetWheelMode(motorFR,True)
-motorDriver.SetWheelMode(motorBR,True)
+initialised = False
+while not initialised:
+  try:
+    motorDriver.SetWheelMode(motorFL,True)
+    motorDriver.SetWheelMode(motorBL,True)
+    motorDriver.SetWheelMode(motorFR,True)
+    motorDriver.SetWheelMode(motorBR,True)
+    initialised = True
+  except Exception as e:
+    print(e)
+    print("Failed to initialised, trying again")
+    time.sleep(1)
 
 def MessageHandle():
 
@@ -460,11 +478,19 @@ def MessageHandle():
         #  Wait for next request from client
         message = socket.recv().split(",")
         #message = message.split(",")
-        MoveMotors(int(message[0]),int(message[1]))
+        try:
+          MoveMotors(int(message[0]),int(message[1]))
+        except Exception as e:
+          print(e)
+          print("Failed command, waiting for next one to come along")
         print(message[0])
         socket.send_string(b"True")
 
-print("Motors Online")
+
+print("Motors Ready!")
+StopMotors()
+print(motorDriver.GetVoltage(1))
+
 # Handy for interactive testing.
 if __name__ == "__main__":
   
@@ -475,9 +501,7 @@ if __name__ == "__main__":
     
   else:
     ps = "/dev/ttyACM0"
-    
-  
-  
+
 
   
   '''while True:
@@ -486,5 +510,7 @@ if __name__ == "__main__":
     MoveMotors(100,100)
     time.sleep(1)
     MoveMotors(-100,-100)
-    time.sleep(1)'''
+    time.sleep(1)
+    VOLTAGE
+    '''
     
