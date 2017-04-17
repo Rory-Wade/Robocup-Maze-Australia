@@ -419,6 +419,16 @@ def StopMotors():
   
 def MoveMotors(speedL,speedR):
   
+  if speedL >= 100:
+    speedL = 99
+  elif speedL <= -100:
+    speedL = -99
+  
+  if speedR >= 100:
+    speedR = 99
+  elif speedR <= -100:
+    speedR = -99
+    
   directionFL = 0
   directionFR = 1
   directionBL = 0
@@ -472,6 +482,12 @@ while not initialised:
     print("Failed to initialised, trying again")
     time.sleep(1)
 
+print("Motors Ready!")
+StopMotors()
+
+print(motorDriver.GetVoltage(1))
+
+
 def MessageHandle():
 
     while True:
@@ -487,9 +503,6 @@ def MessageHandle():
         socket.send_string(b"True")
 
 
-print("Motors Ready!")
-StopMotors()
-print(motorDriver.GetVoltage(1))
 
 # Handy for interactive testing.
 if __name__ == "__main__":

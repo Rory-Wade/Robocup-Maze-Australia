@@ -144,10 +144,12 @@ def useLidarToCalculateNextMotion(lidarArray):
         print("FITS THE ENVELOPE MY DUDE")
         StopMotors()
         time.sleep(5)
+        
         forwardsTiles = int(bestForwardsMeasurement / tileSize)
         backwardsTiles = int(bestDownMeasurement / tileSize)
         leftTiles = int(bestLeftMeasurement / tileSize)
         rightTiles = int(bestRightMeasurement / tileSize)
+        
         return relativePositionCode(forwardsTiles,rightTiles,backwardsTiles,leftTiles)
 
     return None
@@ -155,6 +157,7 @@ def useLidarToCalculateNextMotion(lidarArray):
 #CurrentFacingDirection
 currentFacingDirection = 0
 lastSentCoords = []
+
 def relativePositionCode(up,right,down,left):
     global currentFacingDirection
     directions = [up,right,down,left]
