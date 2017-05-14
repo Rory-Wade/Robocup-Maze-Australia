@@ -21,7 +21,7 @@ from rplidar import RPLidar
 PORT_NAME_MAC = '/dev/tty.SLAB_USBtoUART'
 PORT_NAME = '/dev/ttyUSB0'
 
-AVGLOOP = 3 #amount of scans averaged before release
+AVGLOOP = 1 #amount of scans averaged before release
 
 class lidarCMD:
     def __init__(self, PORT):
@@ -94,7 +94,7 @@ class lidarCMD:
         try:
             print("Lidar Satus: {}\tCode: {} \n Recording measurments... Press Crl+C to stop.".format(self.health()[0], self.health()[1])) #find exception before function start
 
-            
+
             lidarReadingsAVG = [None] * 360
             currLoop = 0
             scanTime = 0
