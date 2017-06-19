@@ -64,6 +64,11 @@ print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
 
 print('Reading BNO055 data, press Ctrl-C to quit...')
 
+heading, roll, pitch = bno.read_euler()
+sys, gyro, accel, mag = bno.get_calibration_status()
+
+print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(heading, roll, pitch, sys, gyro, accel, mag))
+
 def getCurrentAngle():
     try:
         heading, roll, pitch = bno.read_euler()
@@ -105,3 +110,17 @@ while True:
     # Sleep for a second until the next reading.
     time.sleep(1)
 '''
+
+if __name__ == "__main__":
+    while True:
+        # Read the Euler angles for heading, roll, pitch (all in degrees).
+        heading, roll, pitch = bno.read_euler()
+        # Read the calibration status, 0=uncalibrated and 3=fully calibrated.
+        sys, gyro, accel, mag = bno.get_calibration_status()
+        # Print everything out.
+        print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
+              heading, roll, pitch, sys, gyro, accel, mag))
+        
+        if gyro == 3:
+            bno.begin()
+        time.sleep(1)
