@@ -154,13 +154,13 @@ class ServoController:
 
   wheelmode = False
 
-  def __init__(self, portstring="/dev/ttyUSB0"):
+  def __init__(self, portstring="/dev/ttyACM0"):
     """
     Provide the name of the serial port to which the servos are connected.
     """
     self.portstring = portstring
     self.port = serial.Serial(self.portstring,
-                              1000000,
+                              921600,
                               timeout=5) # Picked from a hat.
   def Close(self):
     """Close the serial port."""
@@ -387,16 +387,15 @@ if __name__ == "__main__":
     ps = "/dev/ttyACM0"
     
   X = ServoController(ps)
-  for i in range(0,10):
+  
+  for i in range(1,5):
     try:
-      X.Reset(i)
+      X.SetWheelMode(i, True)
+      X.SetMovingSpeed(i, 1023)
+      time.sleep(0.01)
+      X.SetMovingSpeed(i, 0)
+      print(i)
     except:
       pass
-  
-  X.SetID(1, newMotorID)
 
-  X.SetWheelMode(newMotorID, True)
-  
-  X.SetMovingSpeed(newMotorID, 1023)
-  X.SetMovingSpeed(newMotorID, 0)
 

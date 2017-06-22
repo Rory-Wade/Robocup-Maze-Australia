@@ -14,11 +14,6 @@
 import sys
 import serial
 import time
-import zmq
-
-context = zmq.Context()
-socket = context.socket(zmq.REP)
-socket.bind("tcp://*:5557")
 
 # The exposed EEPROM addresses
 MODELNO_L     = [0x00] # R
@@ -124,8 +119,7 @@ class Response:
     list of ints. See ServoController.Interact().
     """
     if len(data) == 0 or data[0] != 0xFF or data[1] != 0xFF:
-      
-      raise ValueError("Is 12V on? -> Bad Header! ('%s')" % str(data))
+      raise ValueError( "Bad Header! ('%s')" % str(data))
     if _Checksum(data[2:-1]) != data[-1]:
       raise ValueError( "Checksum %s should be %s" % (_Checksum(data[2:-1]),
                                                       data[-1]))
@@ -196,7 +190,7 @@ class ServoController:
     command = b"".join(map(chr, [0xFF, 0xFF] + P + [_Checksum(P)]))
     self.port.write(command)
     self.port.flushOutput()
-    time.sleep(0.005)
+    time.sleep(0.05)
 
     # Handle the read.
     res = []
@@ -228,16 +222,6 @@ class ServoController:
       raise ValueError( "GetPosition didn't get two parameters!")
     return _DeWire(res.parameters)
 
-  def GetVoltage(self, id):
-    """
-    Return the current position of the servo. See the user manual, page 16,
-    for what the return value means.
-    """
-    _VerifyID(id)
-    packet = READ_DATA + VOLTAGE + [1]
-    res = self.Interact(id, packet).Verify()
-    return res.parameters[0]
-    
   def GetPositionDegrees(self, id):
     """
     If you'd rather work in degrees, use this one. Again, see the user manual,
@@ -391,138 +375,30 @@ class ServoController:
     while self.Moving(id):
       pass
 
-def translate(value, leftMin, leftMax, rightMin, rightMax):
-    # Figure out how 'wide' each range is
-    leftSpan = leftMax - leftMin
-    rightSpan = rightMax - rightMin
-
-    # Convert the left range into a 0-1 range (float)
-    valueScaled = float(value - leftMin) / float(leftSpan)
-
-    # Convert the 0-1 range into a value in the right range.
-    return int(rightMin + (valueScaled * rightSpan))
-    
-ps = "/dev/ttyACM0"
-
-def MoveMotor(id, direction, speed):
-  
-  internalSpeed = translate(speed, 0, 100, 0, 1023) + direction * 1024
-  driver = ServoController(ps)
-  driver.SetWheelMode(id,True)
-  driver.SetMovingSpeed(id, internalSpeed)
-
-def StopMotors():
-  motorDriver.SetMovingSpeed(motorFL,0)
-  motorDriver.SetMovingSpeed(motorFR,0)
-  motorDriver.SetMovingSpeed(motorBL,0)
-  motorDriver.SetMovingSpeed(motorBR,0)
-  
-def MoveMotors(speedL,speedR):
-  
-  if speedL >= 100:
-    speedL = 99
-  elif speedL <= -100:
-    speedL = -99
-  
-  if speedR >= 100:
-    speedR = 99
-  elif speedR <= -100:
-    speedR = -99
-    
-  directionFL = 0
-  directionFR = 1
-  directionBL = 0
-  directionBR = 1
-  
-  if speedL < 0:
-    directionFL = 1
-    directionBL = 1
-    
-    speedL = speedL * -1
-    
-  if speedR < 0:
-    directionFR = 0
-    directionBR = 0
-    
-    speedR = speedR * -1
-    
-  motorFL = 2
-  motorFR = 4
-  motorBL = 1
-  motorBR = 3
-  
-  motorDriver.SetMovingSpeed(motorFL, translate(speedL % 100, 0, 100, 0, 1023) + directionFL * 1024)
-  motorDriver.SetMovingSpeed(motorFR, translate(speedR % 100, 0, 100, 0, 1023) + directionFR * 1024)
-  motorDriver.SetMovingSpeed(motorBL, translate(speedL % 100, 0, 100, 0, 1023) + directionBL * 1024)
-  motorDriver.SetMovingSpeed(motorBR, translate(speedR % 100, 0, 100, 0, 1023) + directionBR * 1024)
-
-
-forwards = 1023
-backwards = 2047
-
-global motorDriver
-  
-motorDriver= ServoController(ps)
-
-motorFL = 2
-motorFR = 3
-motorBL = 1
-motorBR = 4
-
-initialised = False
-while not initialised:
-  try:
-    motorDriver.SetWheelMode(motorFL,True)
-    motorDriver.SetWheelMode(motorBL,True)
-    motorDriver.SetWheelMode(motorFR,True)
-    motorDriver.SetWheelMode(motorBR,True)
-    initialised = True
-  except Exception as e:
-    print(e)
-    print("Failed to initialised, trying again")
-    time.sleep(1)
-
-print("Motors Ready!")
-StopMotors()
-
-print(motorDriver.GetVoltage(1))
-
-
-def MessageHandle():
-
-    while True:
-        #  Wait for next request from client
-        message = socket.recv().split(",")
-        #message = message.split(",")
-        try:
-          MoveMotors(int(message[0]),int(message[1]))
-        except Exception as e:
-          print(e)
-          print("Failed command, waiting for next one to come along")
-        print(message[0])
-        socket.send_string(b"True")
-
-
-
 # Handy for interactive testing.
 if __name__ == "__main__":
   
-  MessageHandle()
+  newMotorID = 4
   
   if len(sys.argv) != 1:  # Specifying a port for interactive use
     ps = sys.argv[1]
     
   else:
     ps = "/dev/ttyACM0"
-
-
-  '''
-  while True:
-
-     
-    MoveMotors(100,100)
-    time.sleep(1)
-    MoveMotors(-100,-100)
-    time.sleep(1)
     
-    '''
+  X = ServoController(ps)
+  for i in range(0,10):
+    try:
+      X.Reset(i)
+    except:
+      pass
+  
+  X.SetID(1, newMotorID)
+
+  X.SetWheelMode(newMotorID, True)
+  
+  
+  X.SetMovingSpeed(newMotorID, 1023)
+  time.sleep(1)
+  X.SetMovingSpeed(newMotorID, 0)
+
