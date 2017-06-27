@@ -16,6 +16,8 @@ import serial
 import time
 import zmq
 
+print("Started")
+
 context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5557")

@@ -42,11 +42,12 @@ if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
     logging.basicConfig(level=logging.DEBUG)
 
 # Initialize the BNO055 and stop if something went wrong.
-if not bno.begin():
+if not bno.begin(mode = 0X0B):
     raise RuntimeError('Failed to initialize BNO055! Is the sensor connected?')
 
 # Print system status and self test result.
 status, self_test, error = bno.get_system_status()
+
 print('System status: {0}'.format(status))
 print('Self test result (0x0F is normal): 0x{0:02X}'.format(self_test))
 # Print out an error if system status is in error mode.
@@ -54,6 +55,8 @@ if status == 0x01:
     print('System error: {0}'.format(error))
     print('See datasheet section 4.3.59 for the meaning.')
 
+#bno.set_calibration([222, 255, 223, 255, 3, 0, 80, 0, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 3, 192, 2])
+#bno.set_mode(OPERATION_MODE_M4G)
 # Print BNO055 software revision and other diagnostic data.
 sw, bl, accel, mag, gyro = bno.get_revision()
 print('Software version:   {0}'.format(sw))
@@ -92,7 +95,7 @@ while True:
           heading, roll, pitch, sys, gyro, accel, mag))
     # Other values you can optionally read:
     # Orientation as a quaternion:
-    #x,y,z,w = bno.read_quaterion()
+    x,y,z,w = bno.read_quaternion()
     # Sensor temperature in degrees Celsius:
     #temp_c = bno.read_temp()
     # Magnetometer data (in micro-Teslas):
@@ -108,9 +111,10 @@ while True:
     # in meters per second squared):
     #x,y,z = bno.read_gravity()
     # Sleep for a second until the next reading.
+    #print("X:%f  Y:%f  Z:%f"%(x,y,z))
     time.sleep(1)
-'''
 
+'''
 if __name__ == "__main__":
     while True:
         # Read the Euler angles for heading, roll, pitch (all in degrees).
@@ -121,6 +125,9 @@ if __name__ == "__main__":
         print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
               heading, roll, pitch, sys, gyro, accel, mag))
         
+        print(bno.get_calibration())
+        
         if gyro == 3:
             bno.begin()
         time.sleep(1)
+        
