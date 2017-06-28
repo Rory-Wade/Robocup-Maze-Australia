@@ -1,7 +1,7 @@
 import serial
 
 port = serial.Serial(
-    '/dev/ttyO4',
+    '/dev/ttyO1',
     baudrate=115200,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,

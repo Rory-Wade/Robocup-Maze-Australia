@@ -138,6 +138,76 @@ def MovingForward(lidarData):
         return False
     return True
     
+def finishTurn(lidarDistanceArray):
+    proportion = 0
+    derivative = 0
+    last_error = 0
+    integral = 0
+    
+    KP = 1
+    KI = 0.01
+    KD = 1.2
+    
+    offset = 1
+    minLength = 160
+    angle = ((offset * 10) * math.pi / 180)
+    if(lidarDistanceArray[9] < tileSize):
+        for i in range(2):  
+            lidarDistanceArray = readLidar()
+            Front = math.cos(angle) * lidarDistanceArray[9 - offset]
+            Back = math.cos(angle) * lidarDistanceArray[9 + offset]
+            
+            while(abs(Back - Front) > 1):
+                lidarDistanceArray = readLidar()
+    
+                Front = math.cos(angle) * lidarDistanceArray[9 - offset]
+                Back = math.cos(angle) * lidarDistanceArray[9 + offset]
+            
+                proportion = Back - Front
+                
+                integral  += proportion
+                derivative = proportion - last_error
+                last_error = proportion
+                
+                turn = KP*proportion + KI*integral + KD*derivative
+                
+                if(abs(turn) < 5):
+                    turn = (turn / abs(turn)) * 7
+                    
+                print("prop: %f  Turn: %f  LastError: %f"%(proportion,turn,last_error))
+                MoveMotors(-turn, turn)
+            
+    elif(lidarDistanceArray[27] < tileSize):
+        for i in range(2):  
+            lidarDistanceArray = readLidar()
+            Front = math.cos(angle) * lidarDistanceArray[27 - offset]
+            Back = math.cos(angle) * lidarDistanceArray[27 + offset]
+            
+            while(abs(Back - Front) > 1):
+                lidarDistanceArray = readLidar()
+    
+                Front = math.cos(angle) * lidarDistanceArray[27 - offset]
+                Back = math.cos(angle) * lidarDistanceArray[27 + offset]
+            
+                proportion = Back - Front
+                
+                integral  += proportion
+                derivative = proportion - last_error
+                last_error = proportion
+                
+                turn = KP*proportion + KI*integral + KD*derivative
+                
+                if(abs(turn) < 5):
+                    turn = (turn / abs(turn)) * 7
+                    
+                print("prop: %f  Turn: %f  LastError: %f"%(proportion,turn,last_error))
+                MoveMotors(-turn, turn)
+
+    else:
+        print("FinishTurn:No wall to use")
+        
+    StopMotors()
+    
 def numberFitsEnvelope(front, back, envelope):
     global baseMotorSpeed
     global nextTile
@@ -428,7 +498,7 @@ def invalidLidarData(array):
         
         
 print("ONLINE")
-
+'''
 while True:
     
     #if PauseButton():
@@ -479,3 +549,10 @@ while True:
     else:
         StopMotors()
     
+'''
+while True:
+    print("Getting Lidar Data and finishing turn")
+    lidarArray = readLidar()
+    finishTurn(lidarArray)
+    print("Done")
+    time.sleep(3)

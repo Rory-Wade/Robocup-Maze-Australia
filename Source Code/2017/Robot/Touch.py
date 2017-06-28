@@ -36,7 +36,7 @@ if __name__ == "__main__":
         
         print(chr(27) + "[2J")
         print("Pause Button: %i"%(PauseButton()))
-        print("Light Sensor Right: %i Light Sensor Left: %i"%(BrightRead(1),BrightRead(2)))
-        print("Touch Sensor F Right: %i Touch Sensor F Left: %i Touch Sensor B Left: %i Touch Sensor B Right: %i"%(TouchSensors()[0],TouchSensors()[1],TouchSensors()[2],TouchSensors()[3]))
+        #print("Light Sensor Right: %i Light Sensor Left: %i"%(BrightRead(1),BrightRead(2)))
+        #print("Touch Sensor F Right: %i Touch Sensor F Left: %i Touch Sensor B Left: %i Touch Sensor B Right: %i"%(TouchSensors()[0],TouchSensors()[1],TouchSensors()[2],TouchSensors()[3]))
         
         time.sleep(1)
