@@ -10,6 +10,6 @@ port = serial.Serial(
 
 value = 0
 while True:
-    print port.read()
+    print port.readline()
     value += 1
     port.write("Hello from beaglebone! %i\n" % value)

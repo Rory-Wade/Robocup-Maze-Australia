@@ -24,25 +24,20 @@
 import logging
 import sys
 import time
-
 from Adafruit_BNO055 import BNO055
 
+BNO055_PWR_MODE_ADDR                 = 0X3E
+POWER_MODE_NORMAL                    = 0X00
+BNO055_SYS_TRIGGER_ADDR              = 0X3F
 
-# Create and configure the BNO sensor connection.  Make sure only ONE of the
-# below 'bno = ...' lines is uncommented:
-# Raspberry Pi configuration with serial UART and RST connected to GPIO 18:
-#bno = BNO055.BNO055(serial_port='/dev/ttyAMA0', rst=18)
-# BeagleBone Black configuration with default I2C connection (SCL=P9_19, SDA=P9_20),
-# and RST connected to pin P9_12:
 bno = BNO055.BNO055(rst='P9_27', busnum=2)
-
 
 # Enable verbose debug logging if -v is passed as a parameter.
 if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
     logging.basicConfig(level=logging.DEBUG)
 
 # Initialize the BNO055 and stop if something went wrong.
-if not bno.begin(mode = 0X0B):
+if not bno.begin():
     raise RuntimeError('Failed to initialize BNO055! Is the sensor connected?')
 
 # Print system status and self test result.
@@ -80,41 +75,18 @@ def getCurrentAngle():
     except IndexError:
         print("\nBNO READ ERROR - PASSING NONE! ERROR-> {}".format(IndexError))
         return None
-    
-#while True:
-#    print(getCurrentAngle())
-#    time.sleep(0.5)
-'''
-while True:
-    # Read the Euler angles for heading, roll, pitch (all in degrees).
-    heading, roll, pitch = bno.read_euler()
-    # Read the calibration status, 0=uncalibrated and 3=fully calibrated.
-    sys, gyro, accel, mag = bno.get_calibration_status()
-    # Print everything out.
-    print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
-          heading, roll, pitch, sys, gyro, accel, mag))
-    # Other values you can optionally read:
-    # Orientation as a quaternion:
-    x,y,z,w = bno.read_quaternion()
-    # Sensor temperature in degrees Celsius:
-    #temp_c = bno.read_temp()
-    # Magnetometer data (in micro-Teslas):
-    #x,y,z = bno.read_magnetometer()
-    # Gyroscope data (in degrees per second):
-    #x,y,z = bno.read_gyroscope()
-    # Accelerometer data (in meters per second squared):
-    #x,y,z = bno.read_accelerometer()
-    # Linear acceleration data (i.e. acceleration from movement, not gravity--
-    # returned in meters per second squared):
-    #x,y,z = bno.read_linear_acceleration()
-    # Gravity acceleration data (i.e. acceleration just from gravity--returned
-    # in meters per second squared):
-    #x,y,z = bno.read_gravity()
-    # Sleep for a second until the next reading.
-    #print("X:%f  Y:%f  Z:%f"%(x,y,z))
-    time.sleep(1)
 
-'''
+def resetIMU():
+    bno._gpio.set_low(bno._rst)
+    time.sleep(0.01)  # 10ms
+    bno._gpio.set_high(bno._rst)
+    time.sleep(0.65)
+    bno._write_byte(BNO055_PWR_MODE_ADDR, POWER_MODE_NORMAL)
+    # Default to internal oscillator.
+    bno._write_byte(BNO055_SYS_TRIGGER_ADDR, 0x0)
+    bno._operation_mode()
+
+
 if __name__ == "__main__":
     while True:
         # Read the Euler angles for heading, roll, pitch (all in degrees).
@@ -124,10 +96,10 @@ if __name__ == "__main__":
         # Print everything out.
         print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
               heading, roll, pitch, sys, gyro, accel, mag))
-        
-        print(bno.get_calibration())
-        
-        if gyro == 3:
-            bno.begin()
+                    
+        response = raw_input("Reset?")
+        if response == "y":
+            resetIMU()
+
         time.sleep(1)
         

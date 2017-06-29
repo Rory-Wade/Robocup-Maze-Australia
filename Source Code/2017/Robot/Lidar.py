@@ -75,6 +75,8 @@ import json
 import time
 import math
 
+print("Start")
+
 lidar = RPLidar('/dev/ttyUSB0')
 
 context = zmq.Context()
