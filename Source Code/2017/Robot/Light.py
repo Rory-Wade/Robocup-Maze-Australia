@@ -5,7 +5,7 @@ tcs = Adafruit_TCS34725.TCS34725(busnum=2,gain=Adafruit_TCS34725.TCS34725_GAIN_1
 
 tcs.set_interrupt(False)
 
-LOWER_BOUND_WHITE = 97
+LOWER_BOUND_WHITE = 120
 HIGHER_BOUND_BLACK = 20
 
 print("Light Sensor Active")
@@ -19,7 +19,7 @@ def tileColour():
         return None
     elif(lux < HIGHER_BOUND_BLACK):
         return 0 #black
-        
+    
     return 1 # else its silver
     
 '''
@@ -29,14 +29,17 @@ Color Temperature: 2838 K
 Luminosity: 5 lux 6 lux
 
 WHITE
-Color: red=165 green=182 blue=163 clear=492
-Color Temperature: 6843 K
-Luminosity: 114 lux 109 lux 110 lux
+Light Sensor Active
+Color: red=172 green=205 blue=185 clear=563
+Color Temperature: 7406 K
+Luminosity: 132 lux
+None
 
 SILVER
-Color: red=152 green=141 blue=135 clear=387
-Color Temperature: 6991 K
-Luminosity: 74 lux 71 lux 80 lux
+Color: red=169 green=173 blue=158 clear=490
+Color Temperature: 6740 K
+Luminosity: 102 lux
+1
 
 
 '''

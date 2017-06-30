@@ -8,6 +8,17 @@ import string
 import psutil
 from subprocess import call
 
+import unicodedata, re
+
+all_chars = (unichr(i) for i in xrange(0x110000))
+control_chars = ''.join(c for c in all_chars if unicodedata.category(c) == 'Cc')
+# or equivalently and much more efficiently
+control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
+
+control_char_re = re.compile('[%s]' % re.escape(control_chars))
+
+def remove_control_chars(s):
+    return control_char_re.sub('', s)
 
 context = zmq.Context()
 BluetoothZMQ = context.socket(zmq.SUB)
@@ -56,11 +67,11 @@ sock.connect((host, port))
 print("connected.  type stuff")
 #client_sock, client_info = sock.accept()
 
-def sendSystemDiagnostics():
+"""def sendSystemDiagnostics():
     while True:
         sendMessage("CPU;"+str(psutil.cpu_percent()))
         sendMessage("MEM;"+str(psutil.virtual_memory().percent))
-        time.sleep(1)
+        time.sleep(1)"""
         
         
 def MoveMotors(Linput,Rinput):
@@ -81,6 +92,13 @@ def recieveLoop():
         if 'B:' in data:
             command = data.split("B:")[1]
             stringCall = call(command.split(" "))
+            #sendMessage(stringCall)
+        elif 'M:' in data:
+            command = data.split("M:")[1]
+            motorCommands = command.split(",")
+            motorCommands = [remove_control_chars(motorCommands[0]),remove_control_chars(motorCommands[1])]
+            if motorCommands[0] > -200 and motorCommands[1] > -200:
+                MoveMotors(int(motorCommands[0]),int(motorCommands[1]))
         print(data)
 
 bluetoothRecieve = threading.Thread(target=recieveLoop)
@@ -91,29 +109,29 @@ bluetoothRecieve.daemon = True
 
 bluetoothRecieve.start()
 
-diagnostics = threading.Thread(target=sendSystemDiagnostics)
+#diagnostics = threading.Thread(target=sendSystemDiagnostics)
 
 
 
-diagnostics.daemon = True
+#diagnostics.daemon = True
 
-diagnostics.start()
+#diagnostics.start()
 
 while True:
     #data = sock.recv(1024)
     #print(data)
     
-    stringMap = BluetoothZMQ.recv_string().split(":")
+    #stringMap = BluetoothZMQ.recv_string().split(":")
     #print([ord(c) for c in data])
 
-    theTuple = struct.unpack("4b", struct.pack("I", len(stringMap[1])))
+    #theTuple = struct.unpack("4b", struct.pack("I", len(stringMap[1])))
     
-    print(theTuple)
+    #print(theTuple)
     
-    message = chr(theTuple[3] % 256) + chr(theTuple[2] % 256) + chr(theTuple[1] % 256) + chr(theTuple[0] % 256) + stringMap[1].encode('ascii')
-    print(message)
+    #message = chr(theTuple[3] % 256) + chr(theTuple[2] % 256) + chr(theTuple[1] % 256) + chr(theTuple[0] % 256) + stringMap[1].encode('ascii')
+    #print(message)
     
-    sock.send(message)
+    #sock.send(message)
     
     time.sleep(0.1)
     

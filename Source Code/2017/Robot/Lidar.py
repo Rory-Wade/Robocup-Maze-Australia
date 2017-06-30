@@ -95,7 +95,7 @@ try:
         for scan in scandata:
             quality, angle, measurement = scan
             
-            if quality > 3:
+            if quality > 1:
                 if angle % inc <= thresh or 10 - (angle % 10 ) <= thresh:
                     
                     if angle >= 360 - thresh or angle <= thresh:
@@ -106,6 +106,7 @@ try:
 
         
         socket.send_string("%s %s" % ("[LIDAR]:", json.dumps(lidarArray, ensure_ascii=True)))
+        lidarArray = [0] * 36
 except Exception as e:
     print(e)
     print("Caught error, safely stopping lidar")
