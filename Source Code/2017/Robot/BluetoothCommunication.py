@@ -13,9 +13,6 @@ context = zmq.Context()
 BluetoothZMQ = context.socket(zmq.SUB)
 BluetoothZMQ.connect("tcp://localhost:5558")
 
-motors = context.socket(zmq.REQ)
-motors.connect("tcp://localhost:5557")
-
 filter = "[BLUE]"
 filter = filter.decode('ascii')
 BluetoothZMQ.setsockopt_string(zmq.SUBSCRIBE, filter)
@@ -61,11 +58,6 @@ def sendSystemDiagnostics():
         sendMessage("CPU;"+str(psutil.cpu_percent()))
         sendMessage("MEM;"+str(psutil.virtual_memory().percent))
         time.sleep(1)
-        
-        
-def MoveMotors(Linput,Rinput):
-    motors.send(b"%i,%i" % (Linput,Rinput))
-    message = motors.recv()
 
 def sendMessage(theMessage):
     theMessage = str(theMessage)
@@ -82,18 +74,15 @@ def recieveLoop():
             command = data.split("B:")[1]
             stringCall = call(command.split(" "))
         print(data)
-
+        time.sleep(0.2)
+        
 bluetoothRecieve = threading.Thread(target=recieveLoop)
-
-
 
 bluetoothRecieve.daemon = True
 
 bluetoothRecieve.start()
 
 diagnostics = threading.Thread(target=sendSystemDiagnostics)
-
-
 
 diagnostics.daemon = True
 

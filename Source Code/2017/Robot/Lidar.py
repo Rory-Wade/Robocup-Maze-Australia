@@ -106,7 +106,7 @@ try:
 
         
         socket.send_string("%s %s" % ("[LIDAR]:", json.dumps(lidarArray, ensure_ascii=True)))
-        lidarArray = [0] * 36
+        #lidarArray = [0] * 36
 except Exception as e:
     print(e)
     print("Caught error, safely stopping lidar")

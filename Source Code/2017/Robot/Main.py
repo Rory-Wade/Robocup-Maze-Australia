@@ -16,6 +16,7 @@ lidar.setsockopt(zmq.CONFLATE, 1)
 lidar.connect("tcp://localhost:5556")
 
 bluetooth = context.socket(zmq.PUB)
+bluetooth.set_hwm(7)
 bluetooth.bind("tcp://*:5558")
 
 motors = context.socket(zmq.REQ)
@@ -52,6 +53,8 @@ firstMove = True
 lastSilverTileCoords = []
 lastSilverTileDirection = 0
 silverBacktraceArray = []
+
+robotZ = 2
 
 map = []
 for width in range(0,75):
@@ -165,10 +168,17 @@ def PID(lidarDistanceArray1):
         distDiffernece = min(FrontRight,DesiredDistance + 21) - DesiredDistance
         print("L")
     else:
-        differnece = 0
         distDiffernece = 0
-        #integral = 0
-    
+        differnece = 0
+        # differnece = 0()
+        
+        # if currentFacingDirection == 0:
+        #     if differnece > 180:
+        #         differnece = (360 - angle) * -1 
+            
+        # else:
+        #     differnece = ((90 * currentFacingDirection)  - angle) * -1
+
     proportion = (differnece + distDiffernece/2)
     
     integral  += proportion
@@ -193,23 +203,9 @@ def validTiles(LidarData):
     
     angleDistance = 140
     minDirectLength = 100
-    print(LidarData[0],LidarData[34],LidarData[2],LidarData[18])
     
     for i in range(4):
-        if LidarData[i * 9] < minDirectLength:
-            if i == 0:
-                if LidarData[0 + offset] > angleDistance and LidarData[36 - offset] > angleDistance:
-                    returnArray.append(presetValue)
-                else:
-                    returnArray.append(0)
-            else:
-                if LidarData[i * 9 + offset] > angleDistance and LidarData[i * 9 - offset] > angleDistance:
-                    returnArray.append(presetValue)
-                else:
-                    returnArray.append(0)
-            
-        else:
-            returnArray.append(LidarData[i * 9] / tileSize)
+            returnArray.append(int(LidarData[i * 9] / tileSize))
         
     return returnArray
     
@@ -423,9 +419,6 @@ def lookForEasyConnectionToBackTraceRoute():
 
         
         print(backtraceArray[i])
-
-        if adjacentUnexploredTile(backtraceArray[i]):
-            break
         
         if coords[0] == backtraceArray[i][0] and coords[1] == backtraceArray[i][1]:
             compatibleIndex = i
@@ -459,6 +452,8 @@ def lookForEasyConnectionToBackTraceRoute():
                         # there is no wall below
                         print("No wall above. Valid.")
                         compatibleIndex = i
+        if adjacentUnexploredTile(backtraceArray[i]):
+            break
         print("-----------------")
     print(compatibleIndex)
     
@@ -507,11 +502,12 @@ lastCoords = deepcopy(coords)
 
 def DFS(up,right,down,left):
     global lastBacktracePoint
+    global lastCoords
     changeMap(up,right,down,left)
     decided = False
     directionToMove = -1
     lastCoords = deepcopy(coords)
-    if map[coords[0]][coords[1]] == 0 or map[coords[0]][coords[1]] == 9:
+    if map[coords[0]][coords[1]] == 0:
         map[coords[0]][coords[1]] = 1
         
     if currentFacingDirection == 0:
@@ -522,6 +518,7 @@ def DFS(up,right,down,left):
             #print(map[coords[0] + 1][coords[1]])
             if nextTile == 0:
                 decided = True
+                print("FACING 0 MOVED 0")
                 #Move up
                 coords[0] += 2
                 directionToMove = 0
@@ -529,6 +526,7 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0]][coords[1] + 2]
             if nextTile == 0:
                 decided = True
+                print("FACING 0 MOVED 1")
                 #Move right
                 coords[1] += 2
                 directionToMove = 1
@@ -536,6 +534,7 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0] - 2][coords[1]]
             if nextTile == 0:
                 decided = True
+                print("FACING 0 MOVED 2")
                 #Move down
                 coords[0] -= 2
                 directionToMove = 2
@@ -543,6 +542,7 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0]][coords[1] - 2]
             if nextTile == 0:
                 decided = True
+                print("FACING 0 MOVED 3")
                 #Move left
                 coords[1] -= 2
                 directionToMove = 3
@@ -551,6 +551,7 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0]][coords[1] + 2]
             if nextTile == 0:
                 decided = True
+                print("FACING 1 MOVED 1")
                 #Move right
                 coords[1] += 2
                 directionToMove = 1
@@ -558,6 +559,7 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0] - 2][coords[1]]
             if nextTile == 0:
                 decided = True
+                print("FACING 1 MOVED 2")
                 #Move down
                 coords[0] -= 2
                 directionToMove = 2
@@ -565,6 +567,7 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0]][coords[1] - 2]
             if nextTile == 0:
                 decided = True
+                print("FACING 1 MOVED 3")
                 #Move left
                 coords[1] -= 2
                 directionToMove = 3
@@ -575,6 +578,7 @@ def DFS(up,right,down,left):
             #print(map[coords[0] + 1][coords[1]])
             if nextTile == 0:
                 decided = True
+                print("FACING 1 MOVED 0")
                 #Move up
                 coords[0] += 2
                 directionToMove = 0
@@ -583,6 +587,10 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0] - 2][coords[1]]
             if nextTile == 0:
                 decided = True
+                #print("MOVED TO BLACK TILE")
+                print("FACING 2 MOVED 2")
+                print(lastCoords)
+                print(nextTile)
                 #Move down
                 coords[0] -= 2
                 directionToMove = 2
@@ -590,6 +598,7 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0]][coords[1] - 2]
             if nextTile == 0:
                 decided = True
+                print("FACING 2 MOVED 3")
                 #Move left
                 coords[1] -= 2
                 directionToMove = 3
@@ -600,6 +609,7 @@ def DFS(up,right,down,left):
             #print(map[coords[0] + 1][coords[1]])
             if nextTile == 0:
                 decided = True
+                print("FACING 2 MOVED 0")
                 #Move up
                 coords[0] += 2
                 directionToMove = 0
@@ -607,6 +617,7 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0]][coords[1] + 2]
             if nextTile == 0:
                 decided = True
+                print("FACING 2 MOVED 1")
                 #Move right
                 coords[1] += 2
                 directionToMove = 1
@@ -615,6 +626,7 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0]][coords[1] - 2]
             if nextTile == 0:
                 decided = True
+                print("FACING 3 MOVED 3")
                 #Move left
                 coords[1] -= 2
                 directionToMove = 3
@@ -625,6 +637,7 @@ def DFS(up,right,down,left):
             #print(map[coords[0] + 1][coords[1]])
             if nextTile == 0:
                 decided = True
+                print("FACING 3 MOVED 0")
                 #Move up
                 coords[0] += 2
                 directionToMove = 0
@@ -632,6 +645,7 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0]][coords[1] + 2]
             if nextTile == 0:
                 decided = True
+                print("FACING 3 MOVED 1")
                 #Move right
                 coords[1] += 2
                 directionToMove = 1
@@ -639,11 +653,14 @@ def DFS(up,right,down,left):
             nextTile = map[coords[0] - 2][coords[1]]
             if nextTile == 0:
                 decided = True
+                print("FACING 3 MOVED 2")
                 #Move down
                 coords[0] -= 2
                 directionToMove = 2
     if directionToMove != -1:
         print("Found a direction to move")
+        print(directionToMove)
+        print("-------------------------")
         #Exploration logic found a solution, should not backtrack
         backtraceArray.append([coords[0],coords[1]])
         
@@ -720,15 +737,23 @@ print("ONLINE")
 
 def blackTile():
     print("BLACK TILE")
-    map[coords[0]][coords[1]] = 2
+    global coords
+    global map
+    global backtraceArray
+    map[coords[0]][coords[1]] = 9
     map[coords[0]][coords[1] + 1] = 2
     map[coords[0]][coords[1] - 1] = 2
     map[coords[0] + 1][coords[1]] = 2
     map[coords[0] - 1][coords[1]] = 2
+    print("BLACK TILE AT")
+    print(coords)
+    print("MOVING BACK TO")
     coords = deepcopy(lastCoords)
+    print(coords)
+    backtraceArray.pop()
 
 def MoveBackFromBlack(lidarArray):
-    
+    envelope = 15
     front = lidarArray[0]
     back = lidarArray[18]
     # baseMotorSpeed
@@ -742,15 +767,16 @@ def MoveBackFromBlack(lidarArray):
     if front < back and front > 150:
         nextTileDir = True
         distance = front
-        nextTile = (int(distance / tileSize)) * tileSize - 200
+        nextTile = (int(distance / tileSize) + 1) * tileSize + 160
     elif back > 150:
         nextTileDir = False
         distance = back
-        nextTile = (int(distance / tileSize) + 1) * tileSize + 160
+        nextTile = (int(distance / tileSize)) * tileSize - 200
     else:
         print("WELL HOW DO YOU EXPECT THIS FROM ME - MOVE BLACK")
     
     movingBack = True    
+    
     while movingBack:    
         lidarArray = readLidar()
         
@@ -906,9 +932,10 @@ while True:
                 print("Black Tile")
                 blackTile()
                 MoveBackFromBlack(lidarArray)
-            else:
-                directionToGo = relativePositionCode(validTiles(lidarArray))
-                lastDirection = directionToGo
+                
+            lidarArray = readLidar()
+            directionToGo = relativePositionCode(validTiles(lidarArray))
+            lastDirection = directionToGo
             
             print("----LIDAR MEASUREMENTS REL----")
             print("  LEFT, RIGHT, FORWARD, BACK")
