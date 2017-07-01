@@ -27,6 +27,11 @@ derivative = 0
 proportion = 0
 last_error = 0
 
+RampIntegral = 0
+RampDerivative = 0
+RampProportion = 0
+RampLast_error = 0
+
 filter = "[LIDAR]"
 filter = filter.decode('ascii')
 lidar.setsockopt_string(zmq.SUBSCRIBE, filter)
@@ -39,6 +44,15 @@ currentFacingDirectionLast = 0
 
 global baseMotorSpeed
 baseMotorSpeed = 20
+
+global robotOnRamp
+robotOnRamp = False
+
+global robotWasOnRamp
+robotWasOnRamp = False
+
+global robotRampDirection
+robotRampDirection = None
 
 tileSize = 300
 nextTile = None
@@ -54,13 +68,18 @@ lastSilverTileCoords = []
 lastSilverTileDirection = 0
 silverBacktraceArray = []
 
-robotZ = 2
+robotZ = 3
+
+RAMP_UP_ANGLE = 10
+RAMP_DOWN_ANGLE = -10
 
 map = []
-for width in range(0,75):
+for depth in range(0,5):
     map.append([])
-    for height in range(0,75):
-        map[width].append(0)
+    for width in range(0,75):
+        map[depth].append([])
+        for height in range(0,75):
+            map[depth][width].append(0)
 print("COMPLETED MAP CREATION")
 coords = [37,37]
 explored = []
@@ -118,31 +137,23 @@ def turn(currentAngle,toAngle):
         return turn(getCurrentAngle(),toAngle)
 
 
-def PID(lidarDistanceArray1):
+def PID(lidarDistanceArray):
     global proportion
     global integral
     global derivative
     global last_error
     global baseMotorSpeed
     
-    lidarDistanceArray = []
-    
-    for i in lidarDistanceArray1:
-        if i < 120:
-            lidarDistanceArray.append(120)
-        else:
-            lidarDistanceArray.append(i)
-        
     KP = 0.5
     KI = 0.01
     KD = 0.5
     
     offset = 2
     minLength = 180
-    minSpeed = -15
-    maxSpeed = 60
+    
     angle = ((offset * 10) * math.pi / 180)
-    DesiredDistance = 135
+    DesiredDistance = 140
+    
     Right = 0
     Left = 0
     
@@ -151,33 +162,29 @@ def PID(lidarDistanceArray1):
     FrontRight = math.cos(angle) * lidarDistanceArray[27 + offset]
     BackRight = math.cos(angle) * lidarDistanceArray[27 - offset]
     
-    # print("FrontLeft: %f  BackLeft: %f  FrontRight: %f  BackRight: %f"%(FrontLeft,BackLeft,FrontRight,BackRight))
-    
-    if FrontLeft < minLength and BackLeft < minLength and FrontRight < minLength and BackRight < minLength and False:
+    if FrontLeft < minLength and BackLeft < minLength and FrontRight < minLength and BackRight < minLength:
         differnece = (BackLeft - FrontLeft) + (FrontRight - BackRight)
         distDiffernece = DesiredDistance - min(FrontLeft,DesiredDistance + 21) + min(FrontRight,DesiredDistance + 21) - DesiredDistance
     
-        # print("L = %f , R = %f"%(lidarDistanceArray[9] , lidarDistanceArray[27]))
-        print("LR")
     elif FrontLeft < minLength and BackLeft < minLength:
         differnece = BackLeft - FrontLeft
         distDiffernece =  DesiredDistance - min(FrontLeft,DesiredDistance + 21)
-        print("R")
+
     elif FrontRight < minLength and BackRight < minLength:
         differnece = FrontRight - BackRight
         distDiffernece = min(FrontRight,DesiredDistance + 21) - DesiredDistance
-        print("L")
+
     else:
         distDiffernece = 0
         differnece = 0
-        # differnece = 0()
-        
-        # if currentFacingDirection == 0:
-        #     if differnece > 180:
-        #         differnece = (360 - angle) * -1 
-            
-        # else:
-        #     differnece = ((90 * currentFacingDirection)  - angle) * -1
+        angle = getCurrentAngle()
+        if currentFacingDirection == 0:
+            if differnece > 180:
+                differnece = (angle - 360)
+            else:
+                differnece = angle
+        else:
+            differnece = ((90 * currentFacingDirection)  - angle)
 
     proportion = (differnece + distDiffernece/2)
     
@@ -191,6 +198,60 @@ def PID(lidarDistanceArray1):
         baseMotorSpeed = 10
     
     MoveMotors(baseMotorSpeed - turn,baseMotorSpeed + turn)  
+
+
+
+def RampPID(lidarDistanceArray,pitch):
+    global RampProportion
+    global RampIntegral
+    global RampDerivative
+    global RampLast_error
+    
+    KP = 0.3
+    KI = 0.01
+    KD = 0.3
+    
+    offset = 2
+    minLength = 220
+    
+    angle = ((offset * 10) * math.pi / 180)
+    DesiredDistance = 140
+    
+    Right = 0
+    Left = 0
+    
+    if pitch > 0:
+        baseRampSpeed = 60
+    else:
+        baseRampSpeed = 25
+        KP = 0.2
+        KI = 0.01
+        KD = 0.2
+    
+    print("RAMP PID")
+    
+    FrontLeft = math.cos(angle) * lidarDistanceArray[9 - offset]
+    BackLeft = math.cos(angle) * lidarDistanceArray[9 + offset]
+    FrontRight = math.cos(angle) * lidarDistanceArray[27 + offset]
+    BackRight = math.cos(angle) * lidarDistanceArray[27 - offset]
+    
+    if(FrontLeft < minLength and BackLeft < minLength and FrontRight < minLength and BackRight < minLength):
+        differnece = (BackLeft - FrontLeft) + (FrontRight - BackRight)
+        distDiffernece = DesiredDistance - min(FrontLeft,DesiredDistance + 21) + min(FrontRight,DesiredDistance + 21) - DesiredDistance
+    else:
+        print("ACCEL CODE")
+        distDiffernece = 0
+        differnece = 0
+        
+    RampProportion = differnece + distDiffernece / 2
+    
+    RampIntegral  += RampProportion
+    RampDerivative = RampProportion - RampLast_error
+    RampLast_error = RampProportion
+    
+    turn = KP*RampProportion + KI*RampIntegral + KD*RampDerivative
+
+    MoveMotors(baseRampSpeed-turn,baseRampSpeed + turn)
 
 lastSentCoords = []
       
@@ -242,8 +303,14 @@ def StopMotors():
     motors.send(b"%i,%i" % (0,0))
     message = motors.recv()
 
-def MovingForward(lidarData):
-    if numberFitsEnvelope(lidarData[0],lidarData[18], 15):
+def MoveForward(lidarData,pitch):
+    if pitch > RAMP_UP_ANGLE:
+        robotRampDirection = True
+        
+    elif pitch < RAMP_DOWN_ANGLE:
+        robotRampDirection = False
+        
+    elif numberFitsEnvelope(lidarData[0],lidarData[18], 15):
         return False
     return True
     
@@ -325,46 +392,68 @@ def finishTurn(lidarDistanceArray):
         
     StopMotors()
     
+def wentUpRamp():
+    robotZ += 1
+
+
+def wentDownRamp():
+    robotZ -= 1
+    
 def numberFitsEnvelope(front, back, envelope):
     global baseMotorSpeed
     global nextTile
     global nextTileDir
     global firstMove
+    global robotWasOnRamp
+    
     distance = 0
     TileMoved = False
     
     #decide on next tile distance
-    if nextTile == None:
-        if front < back and front > 150:
-            nextTileDir = True
-            distance = front
-            nextTile = (int(distance / tileSize)) * tileSize - 200
+    if not robotOnRamp and not robotWasOnRamp:
+        if nextTile == None:
+            if front < back and front > 150:
+                nextTileDir = True
+                distance = front
+                nextTile = (int(distance / tileSize)) * tileSize - 210
+                
+                
+            elif back > 150:
+                nextTileDir = False
+                distance = back
+                nextTile = (int(distance / tileSize) + 1) * tileSize + 160
+          
+        else:        
+            if nextTileDir and front > 0:
+                distance = front
+                baseMotorSpeed = (int(distance) - nextTile) / 4
+                TileMoved = abs(distance - nextTile) < (tileSize / envelope)
             
-            
-        elif back > 150:
-            nextTileDir = False
-            distance = back
-            nextTile = (int(distance / tileSize) + 1) * tileSize + 160
-      
-    else:        
-        if nextTileDir and front > 0:
-            distance = front
-            baseMotorSpeed = (int(distance) - nextTile) / 4
-            TileMoved = abs(distance - nextTile) < (tileSize / envelope)
+            elif back > 0:
+                distance = back
+                baseMotorSpeed = -(int(distance) - nextTile) / 4
+                TileMoved = abs(distance - nextTile) < (tileSize / envelope)
         
-        elif back > 0:
-            distance = back
-            baseMotorSpeed = -(int(distance) - nextTile) / 4
-            TileMoved = abs(distance - nextTile) < (tileSize / envelope)
+            lessThanTile = (front < 130 and front > 0 or TouchSensors()[0] or TouchSensors()[1])
     
-        lessThanTile = (front < 140 and front > 0 or TouchSensors()[0] or TouchSensors()[1])
-
-        if (lessThanTile or TileMoved) or nextTile < 0 or firstMove: 
-            firstMove = False
-            nextTile = None
-            nextTileDir = None
-            return True
+            if (lessThanTile or TileMoved) or nextTile < 0 or firstMove: 
+                firstMove = False
+                nextTile = None
+                nextTileDir = None
+                return True
+    elif(robotWasOnRamp == True and not robotOnRamp):
+        
+        nextTile = (int(front / tileSize) + 1) * tileSize - 200
+        print("RAMP NEXT TILE:%f FRONT DISTANCE:%f"%(nextTile, front))
+        nextTileDir = True
+        distance = front
+        robotWasOnRamp = False
             
+    else:
+        firstMove = False
+        nextTile = None
+        nextTileDir = None
+
     return False
 
 
@@ -372,37 +461,37 @@ def changeMap(up,right,down,left):
     print(up, right, down, left)
     print(coords)
     for x in range(1,up * 2,2):
-        if map[coords[0] + x][coords[1]] == 0:
-            map[coords[0] + x][coords[1]] = 0
-    map[coords[0] + (up * 2) + 1][coords[1]] = 9
+        if map[robotZ][coords[0] + x][coords[1]] == 0:
+            map[robotZ][coords[0] + x][coords[1]] = 0
+    map[robotZ][coords[0] + (up * 2) + 1][coords[1]] = 9
     for x in range(1,right * 2,2):
-        if map[coords[0]][coords[1] + x] == 0:
-            map[coords[0]][coords[1] + x] = 0
-    map[coords[0]][coords[1] + (right * 2) + 1] = 9
+        if map[robotZ][coords[0]][coords[1] + x] == 0:
+            map[robotZ][coords[0]][coords[1] + x] = 0
+    map[robotZ][coords[0]][coords[1] + (right * 2) + 1] = 9
     for x in range(1,down * 2,2):
-        if map[coords[0] - x][coords[1]] == 0:
-            map[coords[0] - x][coords[1]] = 0
-    map[coords[0] - (down * 2) - 1][coords[1]] = 9
+        if map[robotZ][coords[0] - x][coords[1]] == 0:
+            map[robotZ][coords[0] - x][coords[1]] = 0
+    map[robotZ][coords[0] - (down * 2) - 1][coords[1]] = 9
     for x in range(1,left * 2,2):
-        if map[coords[0]][coords[1] - x] == 0:
-            map[coords[0]][coords[1] - x] = 0
-    map[coords[0]][coords[1] - (left * 2) - 1] = 9
+        if map[robotZ][coords[0]][coords[1] - x] == 0:
+            map[robotZ][coords[0]][coords[1] - x] = 0
+    map[robotZ][coords[0]][coords[1] - (left * 2) - 1] = 9
 
 def adjacentUnexploredTile(at):
     x = at[0]
     y = at[1]
     
-    if map[x + 1][y] == 0:
-        if map[x + 2][y] == 0:
+    if map[robotZ][x + 1][y] == 0:
+        if map[robotZ][x + 2][y] == 0:
             return True
-    if map[x - 1][y] == 0:
-        if map[x - 2][y] == 0:
+    if map[robotZ][x - 1][y] == 0:
+        if map[robotZ][x - 2][y] == 0:
             return True
-    if map[x][y + 1] == 0:
-        if map[x][y + 2] == 0:
+    if map[robotZ][x][y + 1] == 0:
+        if map[robotZ][x][y + 2] == 0:
             return True
-    if map[x][y - 1] == 0:
-        if map[x][y - 2] == 0:
+    if map[robotZ][x][y - 1] == 0:
+        if map[robotZ][x][y - 2] == 0:
             return True
     return False
         
@@ -420,7 +509,7 @@ def lookForEasyConnectionToBackTraceRoute():
         
         print(backtraceArray[i])
         
-        if coords[0] == backtraceArray[i][0] and coords[1] == backtraceArray[i][1]:
+        if coords[0] == backtraceArray[i][0] and coords[1] == backtraceArray[i][1] and robotZ == backtraceArray[i][2]:
             compatibleIndex = i
         elif coords[0] == backtraceArray[i][0] or coords[1] == backtraceArray[i][1]:
             #This means an adjacent tile
@@ -430,25 +519,25 @@ def lookForEasyConnectionToBackTraceRoute():
                 print("1 tile away from the backtrace array")
                 if dx > 0:
                     #dx > 0 therefore robot is further to the right than the tile it's aiming at
-                    if map[coords[0]][coords[1] - 1] == 0:
+                    if map[robotZ][coords[0]][coords[1] - 1] == 0:
                         # there is no wall to the left
                         print("No wall to the left. Valid.")
                         compatibleIndex = i
                 elif dx < 0:
                     #dx < 0 therefore robot is further to the left than the tile it's aiming at
-                    if map[coords[0]][coords[1] + 1] == 0:
+                    if map[robotZ][coords[0]][coords[1] + 1] == 0:
                         # there is no wall to the left
                         print("No wall to the right. Valid.")
                         compatibleIndex = i
                 elif dy > 0:
                     #dy > 0 therefore the robot's location is higher up than the tile location. The tile is below.
-                    if map[coords[0] - 1][coords[1]] == 0:
+                    if map[robotZ][coords[0] - 1][coords[1]] == 0:
                         # there is no wall below
                         print("No wall underneath. Valid.")
                         compatibleIndex = i
                 elif dy < 0:
                     #dy < 0 therefore the robot's location is lower down than the tile location. The tile is above.
-                    if map[coords[0] + 1][coords[1]] == 0:
+                    if map[robotZ][coords[0] + 1][coords[1]] == 0:
                         # there is no wall below
                         print("No wall above. Valid.")
                         compatibleIndex = i
@@ -507,12 +596,12 @@ def DFS(up,right,down,left):
     decided = False
     directionToMove = -1
     lastCoords = deepcopy(coords)
-    if map[coords[0]][coords[1]] == 0:
-        map[coords[0]][coords[1]] = 1
+    if map[robotZ][coords[0]][coords[1]] == 0:
+        map[robotZ][coords[0]][coords[1]] = 1
         
     if currentFacingDirection == 0:
         if up > 0 and decided == False:
-            nextTile = map[coords[0] + 2][coords[1]]
+            nextTile = map[robotZ][coords[0] + 2][coords[1]]
             #print(coords[0] + 1)
             #print(coords[1])
             #print(map[coords[0] + 1][coords[1]])
@@ -523,7 +612,7 @@ def DFS(up,right,down,left):
                 coords[0] += 2
                 directionToMove = 0
         if right > 0 and decided == False:
-            nextTile = map[coords[0]][coords[1] + 2]
+            nextTile = map[robotZ][coords[0]][coords[1] + 2]
             if nextTile == 0:
                 decided = True
                 print("FACING 0 MOVED 1")
@@ -531,7 +620,7 @@ def DFS(up,right,down,left):
                 coords[1] += 2
                 directionToMove = 1
         if down > 0 and decided == False:
-            nextTile = map[coords[0] - 2][coords[1]]
+            nextTile = map[robotZ][coords[0] - 2][coords[1]]
             if nextTile == 0:
                 decided = True
                 print("FACING 0 MOVED 2")
@@ -539,7 +628,7 @@ def DFS(up,right,down,left):
                 coords[0] -= 2
                 directionToMove = 2
         if left > 0 and decided == False:
-            nextTile = map[coords[0]][coords[1] - 2]
+            nextTile = map[robotZ][coords[0]][coords[1] - 2]
             if nextTile == 0:
                 decided = True
                 print("FACING 0 MOVED 3")
@@ -548,7 +637,7 @@ def DFS(up,right,down,left):
                 directionToMove = 3
     elif currentFacingDirection == 1:
         if right > 0 and decided == False:
-            nextTile = map[coords[0]][coords[1] + 2]
+            nextTile = map[robotZ][coords[0]][coords[1] + 2]
             if nextTile == 0:
                 decided = True
                 print("FACING 1 MOVED 1")
@@ -556,7 +645,7 @@ def DFS(up,right,down,left):
                 coords[1] += 2
                 directionToMove = 1
         if down > 0 and decided == False:
-            nextTile = map[coords[0] - 2][coords[1]]
+            nextTile = map[robotZ][coords[0] - 2][coords[1]]
             if nextTile == 0:
                 decided = True
                 print("FACING 1 MOVED 2")
@@ -564,7 +653,7 @@ def DFS(up,right,down,left):
                 coords[0] -= 2
                 directionToMove = 2
         if left > 0 and decided == False:
-            nextTile = map[coords[0]][coords[1] - 2]
+            nextTile = map[robotZ][coords[0]][coords[1] - 2]
             if nextTile == 0:
                 decided = True
                 print("FACING 1 MOVED 3")
@@ -572,7 +661,7 @@ def DFS(up,right,down,left):
                 coords[1] -= 2
                 directionToMove = 3
         if up > 0 and decided == False:
-            nextTile = map[coords[0] + 2][coords[1]]
+            nextTile = map[robotZ][coords[0] + 2][coords[1]]
             #print(coords[0] + 1)
             #print(coords[1])
             #print(map[coords[0] + 1][coords[1]])
@@ -584,7 +673,7 @@ def DFS(up,right,down,left):
                 directionToMove = 0
     elif currentFacingDirection == 2:
         if down > 0 and decided == False:
-            nextTile = map[coords[0] - 2][coords[1]]
+            nextTile = map[robotZ][coords[0] - 2][coords[1]]
             if nextTile == 0:
                 decided = True
                 #print("MOVED TO BLACK TILE")
@@ -595,7 +684,7 @@ def DFS(up,right,down,left):
                 coords[0] -= 2
                 directionToMove = 2
         if left > 0 and decided == False:
-            nextTile = map[coords[0]][coords[1] - 2]
+            nextTile = map[robotZ][coords[0]][coords[1] - 2]
             if nextTile == 0:
                 decided = True
                 print("FACING 2 MOVED 3")
@@ -603,7 +692,7 @@ def DFS(up,right,down,left):
                 coords[1] -= 2
                 directionToMove = 3
         if up > 0 and decided == False:
-            nextTile = map[coords[0] + 2][coords[1]]
+            nextTile = map[robotZ][coords[0] + 2][coords[1]]
             #print(coords[0] + 1)
             #print(coords[1])
             #print(map[coords[0] + 1][coords[1]])
@@ -614,7 +703,7 @@ def DFS(up,right,down,left):
                 coords[0] += 2
                 directionToMove = 0
         if right > 0 and decided == False:
-            nextTile = map[coords[0]][coords[1] + 2]
+            nextTile = map[robotZ][coords[0]][coords[1] + 2]
             if nextTile == 0:
                 decided = True
                 print("FACING 2 MOVED 1")
@@ -623,7 +712,7 @@ def DFS(up,right,down,left):
                 directionToMove = 1
     elif currentFacingDirection == 3:
         if left > 0 and decided == False:
-            nextTile = map[coords[0]][coords[1] - 2]
+            nextTile = map[robotZ][coords[0]][coords[1] - 2]
             if nextTile == 0:
                 decided = True
                 print("FACING 3 MOVED 3")
@@ -631,7 +720,7 @@ def DFS(up,right,down,left):
                 coords[1] -= 2
                 directionToMove = 3
         if up > 0 and decided == False:
-            nextTile = map[coords[0] + 2][coords[1]]
+            nextTile = map[robotZ][coords[0] + 2][coords[1]]
             #print(coords[0] + 1)
             #print(coords[1])
             #print(map[coords[0] + 1][coords[1]])
@@ -642,7 +731,7 @@ def DFS(up,right,down,left):
                 coords[0] += 2
                 directionToMove = 0
         if right > 0 and decided == False:
-            nextTile = map[coords[0]][coords[1] + 2]
+            nextTile = map[robotZ][coords[0]][coords[1] + 2]
             if nextTile == 0:
                 decided = True
                 print("FACING 3 MOVED 1")
@@ -650,7 +739,7 @@ def DFS(up,right,down,left):
                 coords[1] += 2
                 directionToMove = 1
         if down > 0 and decided == False:
-            nextTile = map[coords[0] - 2][coords[1]]
+            nextTile = map[robotZ][coords[0] - 2][coords[1]]
             if nextTile == 0:
                 decided = True
                 print("FACING 3 MOVED 2")
@@ -662,7 +751,7 @@ def DFS(up,right,down,left):
         print(directionToMove)
         print("-------------------------")
         #Exploration logic found a solution, should not backtrack
-        backtraceArray.append([coords[0],coords[1]])
+        backtraceArray.append([coords[0],coords[1],robotZ])
         
         #ISSUE: THE CURRENT POSITION ISN"T APPENDED TO THE BACKTRACE ARRAY UPON FINISHING BACKTRACING
         
@@ -740,11 +829,11 @@ def blackTile():
     global coords
     global map
     global backtraceArray
-    map[coords[0]][coords[1]] = 9
-    map[coords[0]][coords[1] + 1] = 2
-    map[coords[0]][coords[1] - 1] = 2
-    map[coords[0] + 1][coords[1]] = 2
-    map[coords[0] - 1][coords[1]] = 2
+    map[robotZ][coords[0]][coords[1]] = 9
+    map[robotZ][coords[0]][coords[1] + 1] = 2
+    map[robotZ][coords[0]][coords[1] - 1] = 2
+    map[robotZ][coords[0] + 1][coords[1]] = 2
+    map[robotZ][coords[0] - 1][coords[1]] = 2
     print("BLACK TILE AT")
     print(coords)
     print("MOVING BACK TO")
@@ -756,10 +845,6 @@ def MoveBackFromBlack(lidarArray):
     envelope = 15
     front = lidarArray[0]
     back = lidarArray[18]
-    # baseMotorSpeed
-    # nextTile
-    # nextTileDir
-    # firstMove
     distance = 0
     TileMoved = False
     baseMotorSpeed = 20
@@ -815,6 +900,8 @@ def setupForwardTraceArray():
         
     return forwardTraceArray
     
+silverTileZ = deepcopy(robotZ)
+
 def silverTile():
     print("SILVER TILE")
     global backtraceArray
@@ -827,7 +914,9 @@ def silverTile():
     lastSilverTileCoords = [coords[0],coords[1]]
     lastSilverTileDirection = int(str(lastDirection))
     silverBacktraceArray = deepcopy(backtraceArray)
-    map[coords[0]][coords[1]] = 3
+    map[robotZ][coords[0]][coords[1]] = 3
+    
+    silverTileZ = deepcopy(robotZ)
     
     
 def revertToSilverTile():
@@ -864,6 +953,8 @@ def revertToSilverTile():
     print(backtraceArray)
     print(currentFacingDirection)
     
+    robotZ = deepcopy(silverTileZ)
+    
     
 wasPaused = False
 initialPause = True
@@ -874,7 +965,7 @@ def updateBluetoothMaps(lidarArray):
     
     stringMap = ""
     
-    for outside in reversed(map):
+    for outside in reversed(map[robotZ]):
         for inside in outside:
             stringMap += "%i,"%(inside)
     stringMap = stringMap[:-1] 
@@ -913,13 +1004,31 @@ while True:
             revertToSilverTile()
 
         lidarArray = readLidar()
+        IMUAngle = getCurrentPitch()
         
-        if MovingForward(lidarArray):
-            PID(lidarArray)
+        if MoveForward(lidarArray,IMUAngle):
+
+            if IMUAngle < RAMP_UP_ANGLE and IMUAngle > RAMP_DOWN_ANGLE:
+                PID(lidarArray)
+                robotOnRamp = False
+            else:
+                RampPID(lidarArray,IMUAngle)
+                robotOnRamp = True
+                robotWasOnRamp = True
         else:
             
+            if robotRampDirection != None:
+                if robotRampDirection:
+                    wentUpRamp()
+                    print("UP CODE CALLED")
+                else:
+                    wentDownRamp()
+                    print("DOWN CODE CALLED")
+            print(robotRampDirection)            
+            robotRampDirection = None            
             StopMotors()
             lidarArray = readLidar()
+            
             # response = raw_input("Silver Tile?")
             # if response == "y":
             #     silverTile()
@@ -932,8 +1041,8 @@ while True:
                 print("Black Tile")
                 blackTile()
                 MoveBackFromBlack(lidarArray)
-                
-            lidarArray = readLidar()
+                lidarArray = readLidar()
+            
             directionToGo = relativePositionCode(validTiles(lidarArray))
             lastDirection = directionToGo
             

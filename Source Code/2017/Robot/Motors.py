@@ -463,7 +463,10 @@ forwards = 1023
 backwards = 2047
 
 global motorDriver
-  
+
+global lastSpeedL
+global lastSpeedR
+
 motorDriver= ServoController(ps)
 
 motorFL = 2
@@ -501,11 +504,13 @@ def MessageHandle():
         except Exception as e:
           print(e)
           print("Failed command, waiting for next one to come along")
-        print(message[0])
         socket.send_string(b"True")
 
 
+'''
+12v = 123
 
+'''
 # Handy for interactive testing.
 if __name__ == "__main__":
   

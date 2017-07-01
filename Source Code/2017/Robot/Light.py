@@ -8,7 +8,7 @@ tcs.set_interrupt(False)
 LOWER_BOUND_WHITE = 120
 HIGHER_BOUND_BLACK = 20
 
-print("Light Sensor Active")
+print("Light Sensor Active: Good \n")
 
 def tileColour():
     r, g, b, c = tcs.get_raw_data()
