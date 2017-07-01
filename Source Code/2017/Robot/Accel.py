@@ -29,6 +29,7 @@ from Adafruit_BNO055 import BNO055
 BNO055_PWR_MODE_ADDR                 = 0X3E
 POWER_MODE_NORMAL                    = 0X00
 BNO055_SYS_TRIGGER_ADDR              = 0X3F
+bnoMode = 0x08 # IMU mode
 
 bno = BNO055.BNO055(rst='P9_27', busnum=2)
 
@@ -37,7 +38,7 @@ if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
     logging.basicConfig(level=logging.DEBUG)
 
 # Initialize the BNO055 and stop if something went wrong.
-if not bno.begin():
+if not bno.begin(mode = bnoMode):
     raise RuntimeError('Failed to initialize BNO055! Is the sensor connected?')
 
 # Print system status and self test result.
@@ -53,7 +54,11 @@ if status == 0x01:
     print('System error: {0}'.format(error))
     print('See datasheet section 4.3.59 for the meaning.')
 
-#bno.set_calibration([222, 255, 223, 255, 3, 0, 80, 0, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 3, 192, 2])
+print("Getting IMU Calibration")
+time.sleep(5)
+
+calibration = bno.get_calibration()
+
 #bno.set_mode(OPERATION_MODE_M4G)
 # Print BNO055 software revision and other diagnostic data.
 sw, bl, accel, mag, gyro = bno.get_revision()
@@ -97,6 +102,7 @@ def resetIMU():
     # Default to internal oscillator.
     bno._write_byte(BNO055_SYS_TRIGGER_ADDR, 0x0)
     bno._operation_mode()
+    bno.set_calibration(calibration)
 
 
 if __name__ == "__main__":
@@ -108,7 +114,7 @@ if __name__ == "__main__":
         # Print everything out.
         print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
               heading, roll, pitch, sys, gyro, accel, mag))
-                    
+        #print(bno.get_calibration())            
 
         time.sleep(1)
         

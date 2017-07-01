@@ -68,7 +68,7 @@ lastSilverTileCoords = []
 lastSilverTileDirection = 0
 silverBacktraceArray = []
 
-robotZ = 3
+robotZ = 1
 
 RAMP_UP_ANGLE = 10
 RAMP_DOWN_ANGLE = -10
@@ -83,7 +83,7 @@ for depth in range(0,5):
 print("COMPLETED MAP CREATION")
 coords = [37,37]
 explored = []
-backtraceArray = [[coords[0],coords[1]]]
+backtraceArray = [[coords[0],coords[1],robotZ]]
 
 def exit_handler():
     print 'Program Shutting Down...'
@@ -144,12 +144,12 @@ def PID(lidarDistanceArray):
     global last_error
     global baseMotorSpeed
     
-    KP = 0.5
+    KP = 0.4
     KI = 0.01
-    KD = 0.5
+    KD = 0.4
     
-    offset = 2
-    minLength = 180
+    offset = 1
+    minLength = 200
     
     angle = ((offset * 10) * math.pi / 180)
     DesiredDistance = 140
@@ -177,16 +177,16 @@ def PID(lidarDistanceArray):
     else:
         distDiffernece = 0
         differnece = 0
-        angle = getCurrentAngle()
-        if currentFacingDirection == 0:
-            if differnece > 180:
-                differnece = (angle - 360)
-            else:
-                differnece = angle
-        else:
-            differnece = ((90 * currentFacingDirection)  - angle)
+        # angle = getCurrentAngle()
+        # if currentFacingDirection == 0:
+        #     if differnece > 180:
+        #         differnece = (angle - 360)
+        #     else:
+        #         differnece = angle
+        # else:
+        #     differnece = ((90 * currentFacingDirection)  - angle)
 
-    proportion = (differnece + distDiffernece/2)
+    proportion = (differnece + distDiffernece/3)
     
     integral  += proportion
     derivative = proportion - last_error
@@ -212,7 +212,7 @@ def RampPID(lidarDistanceArray,pitch):
     KD = 0.3
     
     offset = 2
-    minLength = 220
+    minLength = 240
     
     angle = ((offset * 10) * math.pi / 180)
     DesiredDistance = 140
@@ -227,8 +227,6 @@ def RampPID(lidarDistanceArray,pitch):
         KP = 0.2
         KI = 0.01
         KD = 0.2
-    
-    print("RAMP PID")
     
     FrontLeft = math.cos(angle) * lidarDistanceArray[9 - offset]
     BackLeft = math.cos(angle) * lidarDistanceArray[9 + offset]
@@ -304,11 +302,15 @@ def StopMotors():
     message = motors.recv()
 
 def MoveForward(lidarData,pitch):
+    global robotRampDirection
+    
     if pitch > RAMP_UP_ANGLE:
+        print("robotRampDirection = TRUE")
         robotRampDirection = True
         
     elif pitch < RAMP_DOWN_ANGLE:
         robotRampDirection = False
+        print("robotRampDirection = FALSE")
         
     elif numberFitsEnvelope(lidarData[0],lidarData[18], 15):
         return False
@@ -393,10 +395,16 @@ def finishTurn(lidarDistanceArray):
     StopMotors()
     
 def wentUpRamp():
+    global robotZ
+    map[robotZ][coords[0]][coords[1]] = 7
+    backtraceArray[len(backtraceArray) - 1][2] = deepcopy(robotZ) + 1
     robotZ += 1
 
 
 def wentDownRamp():
+    global robotZ
+    map[robotZ][coords[0]][coords[1]] = 7
+    backtraceArray[len(backtraceArray) - 1][2] = deepcopy(robotZ) - 1
     robotZ -= 1
     
 def numberFitsEnvelope(front, back, envelope):
@@ -444,7 +452,15 @@ def numberFitsEnvelope(front, back, envelope):
     elif(robotWasOnRamp == True and not robotOnRamp):
         
         nextTile = (int(front / tileSize) + 1) * tileSize - 200
-        print("RAMP NEXT TILE:%f FRONT DISTANCE:%f"%(nextTile, front))
+        
+        if robotRampDirection != None:
+            if robotRampDirection:
+                wentUpRamp()
+                print("Going Up Ramp")
+            else:
+                wentDownRamp()
+                print("Going Down Ramp")
+                    
         nextTileDir = True
         distance = front
         robotWasOnRamp = False
@@ -514,7 +530,7 @@ def lookForEasyConnectionToBackTraceRoute():
         elif coords[0] == backtraceArray[i][0] or coords[1] == backtraceArray[i][1]:
             #This means an adjacent tile
             print(dx,dy)
-            if math.pow(dy,2) + math.pow(dx,2) == 4:
+            if math.pow(dy,2) + math.pow(dx,2) == 4 and backtraceArray[i][2] == robotZ:
                 #Are is there anything 1 tile away
                 print("1 tile away from the backtrace array")
                 if dx > 0:
@@ -546,6 +562,7 @@ def lookForEasyConnectionToBackTraceRoute():
         print("-----------------")
     print(compatibleIndex)
     
+    print(backtraceArray[compatibleIndex])
     
     
     return compatibleIndex
@@ -588,6 +605,7 @@ def relativePositionCode(tileDist):
   
 lastDirection = 0
 lastCoords = deepcopy(coords)
+lastLastCoords = deepcopy(lastCoords)
 
 def DFS(up,right,down,left):
     global lastBacktracePoint
@@ -595,6 +613,7 @@ def DFS(up,right,down,left):
     changeMap(up,right,down,left)
     decided = False
     directionToMove = -1
+    lastLastCoords = deepcopy(lastCoords)
     lastCoords = deepcopy(coords)
     if map[robotZ][coords[0]][coords[1]] == 0:
         map[robotZ][coords[0]][coords[1]] = 1
@@ -789,6 +808,9 @@ def DFS(up,right,down,left):
         
         lastBacktracePoint = backtracePoint
         backtraceArray.append(lastBacktracePoint)
+        if lastLastCoords[0] == backtracePoint[0] and lastLastCoords[1] == backtracePoint[1] and backtracePoint[2] != robotZ:
+            print("DID A THING")
+            return DFS(up,right,down,left)
         if coords[0] > backtracePoint[0]:
             #Needs to go DOWN
             directionToMove = 2
@@ -1016,16 +1038,10 @@ while True:
                 robotOnRamp = True
                 robotWasOnRamp = True
         else:
-            
+          
             if robotRampDirection != None:
-                if robotRampDirection:
-                    wentUpRamp()
-                    print("UP CODE CALLED")
-                else:
-                    wentDownRamp()
-                    print("DOWN CODE CALLED")
-            print(robotRampDirection)            
-            robotRampDirection = None            
+                robotRampDirection = None  
+            
             StopMotors()
             lidarArray = readLidar()
             
