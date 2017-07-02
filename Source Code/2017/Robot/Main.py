@@ -479,19 +479,25 @@ def changeMap(up,right,down,left):
     for x in range(1,up * 2,2):
         if map[robotZ][coords[0] + x][coords[1]] == 0:
             map[robotZ][coords[0] + x][coords[1]] = 0
-    map[robotZ][coords[0] + (up * 2) + 1][coords[1]] = 9
+            
+    if map[robotZ][coords[0] + (up * 2) + 1][coords[1]] == 0:
+        map[robotZ][coords[0] + (up * 2) + 1][coords[1]] = 9
     for x in range(1,right * 2,2):
         if map[robotZ][coords[0]][coords[1] + x] == 0:
             map[robotZ][coords[0]][coords[1] + x] = 0
-    map[robotZ][coords[0]][coords[1] + (right * 2) + 1] = 9
+            
+    if map[robotZ][coords[0]][coords[1] + (right * 2) + 1] == 0:
+        map[robotZ][coords[0]][coords[1] + (right * 2) + 1] = 9
     for x in range(1,down * 2,2):
         if map[robotZ][coords[0] - x][coords[1]] == 0:
             map[robotZ][coords[0] - x][coords[1]] = 0
-    map[robotZ][coords[0] - (down * 2) - 1][coords[1]] = 9
+    if map[robotZ][coords[0] - (down * 2) - 1][coords[1]] == 0:
+        map[robotZ][coords[0] - (down * 2) - 1][coords[1]] = 9
     for x in range(1,left * 2,2):
         if map[robotZ][coords[0]][coords[1] - x] == 0:
             map[robotZ][coords[0]][coords[1] - x] = 0
-    map[robotZ][coords[0]][coords[1] - (left * 2) - 1] = 9
+    if map[robotZ][coords[0]][coords[1] - (left * 2) - 1] == 0:
+        map[robotZ][coords[0]][coords[1] - (left * 2) - 1] = 9
 
 def adjacentUnexploredTile(at):
     x = at[0]
@@ -846,6 +852,83 @@ def invalidLidarData(array):
         
 print("ONLINE")
 
+def returnTileAtDeltaDirection(distance,direction,basecoords):
+    if direction == 0:
+        return [basecoords[0] + distance, basecoords[1]]
+    elif direction == 1:
+        return [basecoords[0],basecoords[1] + distance]
+    elif direction == 2:
+        return [basecoords[0] - distance, basecoords[1]]
+    elif direction == 3:
+        return [basecoords[0], basecoords[1] - distance]
+
+#HEAT TYPES
+#4, 5, 6 are different heat types.
+#4 means that there is heat to the lower side of the axis that the wall sits on (the left of the x axis, the top of the y axis)
+#5 means the reverse, there is heat on the upper side of the axis
+#6 means heat has been seen on both sides of the wall
+
+def victimOn(leftSide,nextTile):
+    if leftSide:
+        #VICTIM is on the LEFT side of the robot
+        direction = (currentFacingDirection - 1) % 4
+        wallCoord = []
+        if nextTile:
+            wallCoord = returnTileAtDeltaDirection(1,direction,coords)
+        else:
+            wallCoord = returnTileAtDeltaDirection(1,direction, lastCoords)
+        if direction == 1 or direction == 0:
+            #DEAL WITH MOVING POSITIVE CASES
+            if map[robotZ][wallCoord[0]][wallCoord[1]] == 9 or map[robotZ][wallCoord[0]][wallCoord[1]] == 0:
+                print("TRUE BOIIIII")
+                map[robotZ][wallCoord[0]][wallCoord[1]] = 5
+                return True
+            elif map[robotZ][wallCoord[0]][wallCoord[1]] == 4:
+                print("TRUE BOIIIII")
+                map[robotZ][wallCoord[0]][wallCoord[1]] = 6
+                return True
+        else:
+            #DEAL WITH MOVING NEGATIVE CASES
+            if map[robotZ][wallCoord[0]][wallCoord[1]] == 9 or map[robotZ][wallCoord[0]][wallCoord[1]] == 0:
+                print("TRUE BOIIIII")
+                map[robotZ][wallCoord[0]][wallCoord[1]] = 4
+                return True
+            elif map[robotZ][wallCoord[0]][wallCoord[1]] == 5:
+                print("TRUE BOIIIII")
+                map[robotZ][wallCoord[0]][wallCoord[1]] = 6
+                return True
+    else:
+        #VICTIM is on the RIGHT side of the robot
+        direction = (currentFacingDirection + 1) % 4
+        wallCoord = []
+        if nextTile:
+            wallCoord = returnTileAtDeltaDirection(1,direction,coords)
+        else:
+            wallCoord = returnTileAtDeltaDirection(1,direction, lastCoords)
+        if direction == 1 or direction == 0:
+            #DEAL WITH MOVING POSITIVE CASES
+            if map[robotZ][wallCoord[0]][wallCoord[1]] == 9 or map[robotZ][wallCoord[0]][wallCoord[1]] == 0:
+                map[robotZ][wallCoord[0]][wallCoord[1]] = 5
+                print("TRUE BOIIIII")
+                return True
+            elif map[robotZ][wallCoord[0]][wallCoord[1]] == 4:
+                map[robotZ][wallCoord[0]][wallCoord[1]] = 6
+                print("TRUE BOIIIII")
+                return True
+        else:
+            #DEAL WITH MOVING NEGATIVE CASES
+            if map[robotZ][wallCoord[0]][wallCoord[1]] == 9 or map[robotZ][wallCoord[0]][wallCoord[1]] == 0:
+                map[robotZ][wallCoord[0]][wallCoord[1]] = 4
+                print("TRUE BOIIIII")
+                return True
+            elif map[robotZ][wallCoord[0]][wallCoord[1]] == 5:
+                map[robotZ][wallCoord[0]][wallCoord[1]] = 6
+                print("TRUE BOIIIII")
+                return True
+    print("FALSE BOIIIII")
+    return False
+        
+
 def blackTile():
     print("BLACK TILE")
     global coords
@@ -1045,10 +1128,22 @@ while True:
             StopMotors()
             lidarArray = readLidar()
             
-            # response = raw_input("Silver Tile?")
-            # if response == "y":
-            #     silverTile()
-              
+            '''response = raw_input("Heat?")
+            if response == "y":
+                response = raw_input("Left Side?")
+                if response == "y":
+                    response = raw_input("NewTile?")
+                    if response == "y":
+                        print(victimOn(True,True))
+                    else:
+                        print(victimOn(True,False))
+                else:
+                    response = raw_input("NewTile?")
+                    if response == "y":
+                        print(victimOn(False,True))
+                    else:
+                        print(victimOn(False,False))'''
+
             if tileColour() == 1:
                 print("silver Tile")
                 silverTile()
