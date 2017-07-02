@@ -1,0 +1,713 @@
+Mono path[0] = 'C:/Users/josep/OneDrive/Robot Simulation/sim_Data/Managed'
+Mono path[1] = 'C:/Users/josep/OneDrive/Robot Simulation/sim_Data/Mono'
+Mono config path = 'C:/Users/josep/OneDrive/Robot Simulation/sim_Data/Mono/etc'
+PlayerConnection initialized from C:/Users/josep/OneDrive/Robot Simulation/sim_Data (debug = 0)
+PlayerConnection initialized network socket : 0.0.0.0 55118
+Multi-casting "[IP] 192.168.106.1 [Port] 55118 [Flags] 3 [Guid] 3926937961 [EditorId] 42389832 [Version] 1048832 [Id] WindowsPlayer(DESKTOP-C17JU8I) [Debug] 1" to [225.0.0.222:54997]...
+Waiting for connection from host on [192.168.106.1:55118]...
+Timed out. Continuing without host connection.
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,defer=y,address=0.0.0.0:56961
+PlayerConnection already initialized - listening to [192.168.106.1:55118]
+Initialize engine version: 5.4.0f3-HTP (b21dfedb4779)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: Intel(R) HD Graphics Family (ID=0xa16)
+    Vendor:   Intel
+    VRAM:     1136 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\Assembly-UnityScript.dll (this message is harmless)
+Loading C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\Assembly-UnityScript.dll into Unity Child Domain
+Platform assembly: C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+- Completed reload, in  1.032 seconds
+Platform assembly: C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\System.dll (this message is harmless)
+Platform assembly: C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\UnityScript.Lang.dll (this message is harmless)
+Platform assembly: C:\Users\josep\OneDrive\Robot Simulation\sim_Data\Managed\Boo.Lang.dll (this message is harmless)
+desktop: 2160x1440 59Hz; virtual: 2160x1440 at 0,0
+<RI> Initializing input.
+XInput1_3.dll not found. Trying XInput9_1_0.dll instead...
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 1.195514 ms
+Unable to find shaders used for the terrain engine. Please include Nature/Terrain/Diffuse shader in Graphics settings.
+ 
+(Filename: C:/buildslave/unity/build/Runtime/Terrain/SplatMaterials.cpp Line: 384)
+
+360
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:Start() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:20)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+Setting up 1 worker threads for Enlighten.
+  Thread -> id: 56bc -> priority: 1 
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
+corner
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object) (at C:\buildslave\unity\build\artifacts\generated\common\runtime\UnityEngineMonoBehaviourBindings.gen.cs:107)
+RobotMotion:robotDecide(Object) (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:102)
+RobotMotion:Update() (at C:\Users\josep\Downloads\UnityThirdPersonTutorial-master\Robot Simulation\Assets\RobotMotion.js:29)
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineMonoBehaviourBindings.gen.cs Line: 107)
+
