@@ -42,8 +42,11 @@ currentFacingDirection = 0
 global currentFacingDirectionLast
 currentFacingDirectionLast = 0
 
+startBaseMotorSpeed = 40
+TilePlacementThresh = 15
+
 global baseMotorSpeed
-baseMotorSpeed = 20
+baseMotorSpeed = startBaseMotorSpeed
 
 global robotOnRamp
 robotOnRamp = False
@@ -70,8 +73,8 @@ silverBacktraceArray = []
 
 robotZ = 1
 
-RAMP_UP_ANGLE = 10
-RAMP_DOWN_ANGLE = -10
+RAMP_UP_ANGLE = 19
+RAMP_DOWN_ANGLE = -20
 
 map = []
 for depth in range(0,5):
@@ -144,15 +147,15 @@ def PID(lidarDistanceArray):
     global last_error
     global baseMotorSpeed
     
-    KP = 0.4
+    KP = 0.5
     KI = 0.01
-    KD = 0.4
+    KD = 0.45
     
     offset = 1
     minLength = 200
     
     angle = ((offset * 10) * math.pi / 180)
-    DesiredDistance = 140
+    DesiredDistance = 130
     
     Right = 0
     Left = 0
@@ -177,14 +180,18 @@ def PID(lidarDistanceArray):
     else:
         distDiffernece = 0
         differnece = 0
-        # angle = getCurrentAngle()
-        # if currentFacingDirection == 0:
-        #     if differnece > 180:
-        #         differnece = (angle - 360)
-        #     else:
-        #         differnece = angle
-        # else:
-        #     differnece = ((90 * currentFacingDirection)  - angle)
+        angle = getCurrentAngle()
+        if currentFacingDirection == 0:
+            if angle > 180:
+                
+                differnece = (angle - 360)
+            else:
+                
+                differnece = angle
+        else:
+
+            differnece = (angle - (90 * currentFacingDirection))
+       
 
     proportion = (differnece + distDiffernece/3)
     
@@ -236,10 +243,22 @@ def RampPID(lidarDistanceArray,pitch):
     if(FrontLeft < minLength and BackLeft < minLength and FrontRight < minLength and BackRight < minLength):
         differnece = (BackLeft - FrontLeft) + (FrontRight - BackRight)
         distDiffernece = DesiredDistance - min(FrontLeft,DesiredDistance + 21) + min(FrontRight,DesiredDistance + 21) - DesiredDistance
+        
     else:
-        print("ACCEL CODE")
         distDiffernece = 0
         differnece = 0
+        angle = getCurrentAngle()
+        
+        if currentFacingDirection == 0:
+            if angle > 180:
+                
+                differnece = (angle - 360)
+            else:
+                
+                differnece = angle
+        else:
+
+            differnece = (angle - (90 * currentFacingDirection))
         
     RampProportion = differnece + distDiffernece / 2
     
@@ -305,14 +324,14 @@ def MoveForward(lidarData,pitch):
     global robotRampDirection
     
     if pitch > RAMP_UP_ANGLE:
-        print("robotRampDirection = TRUE")
+        
         robotRampDirection = True
         
     elif pitch < RAMP_DOWN_ANGLE:
         robotRampDirection = False
-        print("robotRampDirection = FALSE")
         
-    elif numberFitsEnvelope(lidarData[0],lidarData[18], 15):
+        
+    elif numberFitsEnvelope(lidarData[0],lidarData[18], TilePlacementThresh):
         return False
     return True
     
@@ -391,8 +410,10 @@ def finishTurn(lidarDistanceArray):
 
     else:
         print("FinishTurn:No wall to use")
+        return False
         
     StopMotors()
+    return True
     
 def wentUpRamp():
     global robotZ
@@ -406,6 +427,8 @@ def wentDownRamp():
     map[robotZ][coords[0]][coords[1]] = 7
     backtraceArray[len(backtraceArray) - 1][2] = deepcopy(robotZ) - 1
     robotZ -= 1
+    ramp = returnTileAtDeltaDirection(2,(currentFacingDirection + 2) % 4, coords)
+    map[robotZ][ramp[0]][ramp[1]] = 1
     
 def numberFitsEnvelope(front, back, envelope):
     global baseMotorSpeed
@@ -417,37 +440,61 @@ def numberFitsEnvelope(front, back, envelope):
     distance = 0
     TileMoved = False
     
+    TileFineMovement = 100
+    speedDivider = 3
     #decide on next tile distance
     if not robotOnRamp and not robotWasOnRamp:
         if nextTile == None:
             if front < back and front > 150:
                 nextTileDir = True
                 distance = front
-                nextTile = (int(distance / tileSize)) * tileSize - 210
-                
+                nextTile = (int(distance / tileSize)) * tileSize - 190
+                baseMotorSpeed = startBaseMotorSpeed
                 
             elif back > 150:
                 nextTileDir = False
                 distance = back
                 nextTile = (int(distance / tileSize) + 1) * tileSize + 160
+                baseMotorSpeed = startBaseMotorSpeed
           
         else:        
             if nextTileDir and front > 0:
                 distance = front
-                baseMotorSpeed = (int(distance) - nextTile) / 4
+                #baseMotorSpeed = (int(distance) - nextTile) / 4
+                
+                if (int(distance) - nextTile) > TileFineMovement:
+                    baseMotorSpeed = startBaseMotorSpeed
+                elif (int(distance) - nextTile) < -TileFineMovement:
+                    baseMotorSpeed = -startBaseMotorSpeed / 2
+                else:
+                    baseMotorSpeed = (int(distance) - nextTile) / speedDivider
+                    
                 TileMoved = abs(distance - nextTile) < (tileSize / envelope)
+                
             
             elif back > 0:
                 distance = back
-                baseMotorSpeed = -(int(distance) - nextTile) / 4
+                #baseMotorSpeed = -(int(distance) - nextTile) / 4
+                
+                if -(int(distance) - nextTile) > TileFineMovement:
+                    baseMotorSpeed = startBaseMotorSpeed
+                elif -(int(distance) - nextTile) < -TileFineMovement:
+                    baseMotorSpeed = -startBaseMotorSpeed / 2
+                else:
+                    baseMotorSpeed = -(int(distance) - nextTile) / speedDivider
+                    
                 TileMoved = abs(distance - nextTile) < (tileSize / envelope)
+                
+                
+                
         
-            lessThanTile = (front < 130 and front > 0 or TouchSensors()[0] or TouchSensors()[1])
+            lessThanTile = (front < 135 and front > 0 or TouchSensors()[0] or TouchSensors()[1])
     
             if (lessThanTile or TileMoved) or nextTile < 0 or firstMove: 
                 firstMove = False
                 nextTile = None
                 nextTileDir = None
+                
                 return True
     elif(robotWasOnRamp == True and not robotOnRamp):
         
@@ -1083,6 +1130,7 @@ def updateBluetoothMaps(lidarArray):
     bluetooth.send_string("%s MAP;%s" % ("[BLUE]:",stringMap))
     
     
+resetIMU()
 while True:
     
     if PauseButton():
@@ -1110,7 +1158,7 @@ while True:
 
         lidarArray = readLidar()
         IMUAngle = getCurrentPitch()
-        
+
         if MoveForward(lidarArray,IMUAngle):
 
             if IMUAngle < RAMP_UP_ANGLE and IMUAngle > RAMP_DOWN_ANGLE:
@@ -1121,13 +1169,15 @@ while True:
                 robotOnRamp = True
                 robotWasOnRamp = True
         else:
-          
-            if robotRampDirection != None:
-                robotRampDirection = None  
-            
+
             StopMotors()
             lidarArray = readLidar()
-            
+
+            if robotRampDirection != None:
+                if finishTurn(lidarArray):
+                    print("HEY")
+                robotRampDirection = None  
+                
             '''response = raw_input("Heat?")
             if response == "y":
                 response = raw_input("Left Side?")
@@ -1158,10 +1208,10 @@ while True:
             lastDirection = directionToGo
             
             print("----LIDAR MEASUREMENTS REL----")
-            print("  LEFT, RIGHT, FORWARD, BACK")
-            print(lidarArray[27],lidarArray[9],lidarArray[0],lidarArray[18])
+            print("  FORWARD, RIGHT, BACKWARDS, LEFT")
+            print(lidarArray[0],lidarArray[9],lidarArray[18],lidarArray[27])
             print("-------------Tile-------------")
-            print(validTiles(readLidar()))
+            print(validTiles(lidarArray))
             print("----------Direction-----------")
             print(directionToGo)
             print("------------------------------")
@@ -1172,7 +1222,7 @@ while True:
                 paused = True
                 
             updateBluetoothMaps(lidarArray)
-            
+            time.sleep(2)
             print("-------------------------------------------")
     else:
         StopMotors()
