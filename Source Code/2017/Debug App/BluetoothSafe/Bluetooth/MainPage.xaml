@@ -1,0 +1,115 @@
+﻿<Page
+    x:Class="Bluetooth.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Bluetooth"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Loaded="Grid_Loaded">
+        <Viewbox Margin="10,10,862,10" Name="SendUI">
+            <Grid Height="577" Width="340">
+                <Viewbox Height="32" VerticalAlignment="Bottom">
+                    <Grid Height="32" Width="340">
+                        <TextBox x:Name="textBox" Margin="0,0,70,0" TextWrapping="Wrap" Text="" PlaceholderText="Message to Beaglebone"/>
+                        <Button x:Name="SendButton" Content="Send" HorizontalAlignment="Stretch" Margin="275,0,0,0" VerticalAlignment="Stretch" Click="SendButton_Click"/>
+                    </Grid>
+                </Viewbox>
+                <ScrollViewer Margin="0,63,0,38" Background="Black" Foreground="Lime">
+                    <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontFamily="Courier New"/>
+                </ScrollViewer>
+
+            </Grid>
+        </Viewbox>
+        <ProgressRing HorizontalAlignment="Left" Margin="235,431,0,0" VerticalAlignment="Top" Height="100" Name="progressIndicator" Width="100" MinWidth="100" MinHeight="100"/>
+        <Grid Margin="0,0,7,9" MinWidth="100" MinHeight="130" MaxWidth="100" MaxHeight="130" Height="130" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="100">
+            <Image x:Name="Compass" Stretch="Fill" Source="Assets/Compass2.png" MinWidth="100" MinHeight="100" MaxWidth="100" MaxHeight="100" Margin="0,30,0,0">
+                <Image.RenderTransform>
+                    <CompositeTransform CenterY="50" CenterX="50" Rotation="0"/>
+                </Image.RenderTransform>
+            </Image>
+            <TextBlock x:Name="CompassBearing" Margin="0,1,5,105" TextWrapping="Wrap" Text="0 degrees"/>
+        </Grid>
+
+        <TextBlock x:Name="Title" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Debug Mode" VerticalAlignment="Top" Height="97" Width="661" FontSize="60" Foreground="Black" Tapped="TextBlock_Tapped"/>
+        <ScrollViewer HorizontalAlignment="Right" Width="625" Margin="0,112,10,0" Height="625" VerticalAlignment="Top" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Canvas x:Name="ShapeCanvas" Background="#FFEEEEEE" Height="625" Width="625"/>
+        </ScrollViewer>
+        <Button x:Name="RelogButton" Content="Reconnect" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Click="Button_Click_1" Width="97" Height="41"/>
+        <Grid Margin="0,0,124,9" MaxWidth="182" MaxHeight="150" MinWidth="182" MinHeight="150" HorizontalAlignment="Right" Width="182" Height="150" VerticalAlignment="Bottom">
+            <Image Margin="36,25,46,25" Source="Assets/Axis.png" Height="97" MinWidth="100" MinHeight="100" MaxWidth="100" MaxHeight="100"/>
+            <TextBlock x:Name="TilesUp" HorizontalAlignment="Left" Margin="77,0,0,0" TextWrapping="Wrap" Text="UP" VerticalAlignment="Top" TextAlignment="Center"/>
+            <TextBlock x:Name="TilesLeft" HorizontalAlignment="Left" Margin="0,64,0,0" TextWrapping="Wrap" Text="LEFT" VerticalAlignment="Top" TextAlignment="Right"/>
+            <TextBlock x:Name="TilesDown" HorizontalAlignment="Left" Margin="63,130,0,0" TextWrapping="Wrap" Text="DOWN" VerticalAlignment="Top" TextAlignment="Center"/>
+            <TextBlock x:Name="TilesRight" HorizontalAlignment="Left" Margin="140,64,0,0" TextWrapping="Wrap" Text="RIGHT" VerticalAlignment="Top" TextAlignment="Left"/>
+        </Grid>
+        <Grid x:Name="LeftTemperture" Margin="0,0,413,9" HorizontalAlignment="Right" Width="100" Height="148" VerticalAlignment="Bottom">
+            <ProgressBar x:Name="TempertureLeft" HorizontalAlignment="Left" Height="10" Margin="0,70,0,0" VerticalAlignment="Top" Width="100" Foreground="#FFD70000" RenderTransformOrigin="0.5,0.5" Value="88" UseLayoutRounding="False" d:LayoutRounding="Auto" Background="#33000000">
+                <ProgressBar.RenderTransform>
+                    <CompositeTransform Rotation="270"/>
+                </ProgressBar.RenderTransform>
+            </ProgressBar>
+            <ProgressBar x:Name="AmbientLeft" HorizontalAlignment="Left" Height="10" Margin="0,70,0,0" VerticalAlignment="Top" Width="100" Foreground="#FF00D707" RenderTransformOrigin="0.5,0.5" Value="80" UseLayoutRounding="False" d:LayoutRounding="Auto" Background="#00000000">
+                <ProgressBar.RenderTransform>
+                    <CompositeTransform Rotation="270"/>
+                </ProgressBar.RenderTransform>
+            </ProgressBar>
+            <TextBlock x:Name="LeftTempMax" HorizontalAlignment="Left" Margin="34,0,0,0" TextWrapping="Wrap" Text="50°C" VerticalAlignment="Top"/>
+            <TextBlock x:Name="LeftTempMin" HorizontalAlignment="Left" Margin="34,128,0,0" TextWrapping="Wrap" Text="50°C" VerticalAlignment="Top"/>
+            <TextBlock x:Name="LeftSpot" HorizontalAlignment="Left" Margin="62,30,0,0" TextWrapping="Wrap" Text="50°C" VerticalAlignment="Top"/>
+            <TextBlock x:Name="LeftAmbient" HorizontalAlignment="Left" Margin="6,102,0,0" TextWrapping="Wrap" Text="50°C" VerticalAlignment="Top"/>
+
+        </Grid>
+        <Grid x:Name="RightTemperture" Margin="0,0,315,9" HorizontalAlignment="Right" Width="100" Height="148" VerticalAlignment="Bottom">
+            <ProgressBar x:Name="TempertureRight" HorizontalAlignment="Left" Height="10" Margin="0,70,0,0" VerticalAlignment="Top" Width="100" Foreground="#FFD70000" RenderTransformOrigin="0.5,0.5" Value="88" UseLayoutRounding="False" d:LayoutRounding="Auto" Background="#33000000">
+                <ProgressBar.RenderTransform>
+                    <CompositeTransform Rotation="270"/>
+                </ProgressBar.RenderTransform>
+            </ProgressBar>
+            <ProgressBar x:Name="AmbientRight" HorizontalAlignment="Left" Height="10" Margin="0,70,0,0" VerticalAlignment="Top" Width="100" Foreground="#FF00D707" RenderTransformOrigin="0.5,0.5" Value="80" UseLayoutRounding="False" d:LayoutRounding="Auto" Background="#00000000">
+                <ProgressBar.RenderTransform>
+                    <CompositeTransform Rotation="270"/>
+                </ProgressBar.RenderTransform>
+            </ProgressBar>
+            <TextBlock x:Name="RightTempMax" HorizontalAlignment="Left" Margin="34,0,0,0" TextWrapping="Wrap" Text="50°C" VerticalAlignment="Top"/>
+            <TextBlock x:Name="RightTempMin" HorizontalAlignment="Left" Margin="34,128,0,0" TextWrapping="Wrap" Text="50°C" VerticalAlignment="Top"/>
+            <TextBlock x:Name="RightSpot" HorizontalAlignment="Left" Margin="62,30,0,0" TextWrapping="Wrap" Text="50°C" VerticalAlignment="Top"/>
+            <TextBlock x:Name="RightAmbient" HorizontalAlignment="Left" Margin="6,102,0,0" TextWrapping="Wrap" Text="50°C" VerticalAlignment="Top"/>
+
+        </Grid>
+        <Button Content="Pause Robot" HorizontalAlignment="Center" Margin="579,0,651,10" VerticalAlignment="Bottom" Height="129" Width="210" Click="Button_Click"/>
+        <Grid Margin="0,0,518,10" HorizontalAlignment="Right" Width="100" Height="61" VerticalAlignment="Bottom">
+            <ProgressBar x:Name="CPUUtilization" HorizontalAlignment="Right" Margin="0,0,0,23" VerticalAlignment="Bottom" Width="100" Height="10"/>
+            <TextBlock Margin="0,0,1,41" TextWrapping="Wrap" Text="CPU Utilization" HorizontalAlignment="Right" Width="99" Height="20" VerticalAlignment="Bottom"/>
+            <TextBlock x:Name="CPUPercentage" Margin="0,0,1,0" TextWrapping="Wrap" Text="50%" Height="21" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="99"/>
+
+        </Grid>
+        <Grid Margin="0,0,518,84" HorizontalAlignment="Right" Width="100" Height="61" VerticalAlignment="Bottom">
+            <ProgressBar x:Name="RAMUtilization" HorizontalAlignment="Right" Margin="0,0,0,23" VerticalAlignment="Bottom" Width="100" Height="10"/>
+            <TextBlock Margin="0,0,1,41" TextWrapping="Wrap" Text="RAM Usage" HorizontalAlignment="Right" Width="99" Height="20" VerticalAlignment="Bottom"/>
+            <TextBlock x:Name="RAMPercentage" Margin="0,0,1,0" TextWrapping="Wrap" Text="50%" Height="21" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="99"/>
+
+        </Grid>
+        <Button Content="Zoom out" HorizontalAlignment="Right" Margin="0,66,518,0" VerticalAlignment="Top" Width="117" Click="Button_ZoomOut" Height="41"/>
+        <Button Content="Zoom in" HorizontalAlignment="Right" Margin="0,10,518,0" VerticalAlignment="Top" Width="117" Click="Button_ZoomIn" Height="41"/>
+        <Button Content="Save Replay" HorizontalAlignment="Right" Margin="0,66,10,0" VerticalAlignment="Top" Click="SaveButton_Click" Width="97" Height="41"/>
+        <Button Content="Restart Logging" HorizontalAlignment="Right" Margin="0,66,116,0" VerticalAlignment="Top" Click="RestartButton_Click" Width="145" Height="41"/>
+        <Button Content="Replay saved log" HorizontalAlignment="Right" Margin="0,10,116,0" VerticalAlignment="Top" Click="LoadButton_Click" Width="145" Height="41"/>
+        <Grid x:Name="ReplayUI" Height="100" Margin="0,10,266,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="247">
+            <Button x:Name="ReplayPlayButton" Content="Play" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="80" Width="74" Click="PlayPauseButton"/>
+            <Button Content="Step -&gt;" HorizontalAlignment="Left" Margin="163,10,0,0" VerticalAlignment="Top" Height="32" Width="74" Click="StepButton"/>
+            <Button Content="&lt;- Step" HorizontalAlignment="Left" Margin="163,56,0,0" VerticalAlignment="Top" Height="32" Width="74" Click="StepBackButton"/>
+            <ComboBox x:Name="ReplaySpeed" HorizontalAlignment="Left" Margin="89,56,0,0" VerticalAlignment="Top" Width="63" SelectedIndex="1">
+                <ComboBoxItem Content="0.5"/>
+                <ComboBoxItem Content="1"/>
+                <ComboBoxItem Content="2"/>
+                <ComboBoxItem Content="4"/>
+                <ComboBoxItem Content="8"/>
+                <ComboBoxItem Content="16"/>
+            </ComboBox>
+            <TextBlock HorizontalAlignment="Left" Margin="91,30,0,0" TextWrapping="Wrap" Text="Speed" VerticalAlignment="Top"/>
+        </Grid>
+
+    </Grid>
+</Page>
