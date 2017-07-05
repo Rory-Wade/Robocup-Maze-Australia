@@ -104,7 +104,6 @@ try:
                     elif (angle % inc) > inc / 2:
                         lidarArray[int(angle // 10) + 1] = int(measurement)
 
-        
         socket.send_string("%s %s" % ("[LIDAR]:", json.dumps(lidarArray, ensure_ascii=True)))
         #lidarArray = [0] * 36
 except Exception as e:

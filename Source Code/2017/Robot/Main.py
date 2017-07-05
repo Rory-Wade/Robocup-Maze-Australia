@@ -43,7 +43,7 @@ global currentFacingDirectionLast
 currentFacingDirectionLast = 0
 
 startBaseMotorSpeed = 40
-TilePlacementThresh = 15
+TilePlacementThresh = 10
 
 global baseMotorSpeed
 baseMotorSpeed = startBaseMotorSpeed
@@ -94,8 +94,9 @@ def exit_handler():
     
 atexit.register(exit_handler)
 
-def turn(currentAngle,toAngle):
+def turn(currentAngle,toAngle,counter):
     global paused
+    stuckOnSpin = 110
     
     if PauseButton():
         paused = not paused
@@ -105,9 +106,12 @@ def turn(currentAngle,toAngle):
                 
     if not paused:
         bluetooth.send_string("%s %s" % ("[BLUE]:","CMP;%i"%int(getCurrentAngle())))
+        
         if currentAngle == None:
             time.sleep(0.05)
-            return turn(getCurrentAngle(),toAngle)
+            return turn(getCurrentAngle(),toAngle,(counter + 1))
+        if counter > stuckOnSpin:
+            print("PLEASE HELP IM STUCK")
         movingForward = False
         
         if abs((currentAngle - toAngle) % 360) < 3:
@@ -115,6 +119,7 @@ def turn(currentAngle,toAngle):
             StopMotors()
             movingForward = True
             return True
+            
         elif abs((currentAngle - toAngle) % 360) < 180:
     
             rightMotorSpeed = (abs(abs(currentAngle - toAngle) % 360) / 180) * 90 + 20
@@ -137,7 +142,7 @@ def turn(currentAngle,toAngle):
     
             MoveMotors(leftMotorSpeed,rightMotorSpeed)
 
-        return turn(getCurrentAngle(),toAngle)
+        return turn(getCurrentAngle(),toAngle,(counter + 1))
 
 
 def PID(lidarDistanceArray):
@@ -147,15 +152,15 @@ def PID(lidarDistanceArray):
     global last_error
     global baseMotorSpeed
     
-    KP = 0.5
-    KI = 0.01
-    KD = 0.45
+    KP = 0.52
+    KI = 0.04
+    KD = 0.5
     
-    offset = 1
+    offset = 2
     minLength = 200
     
     angle = ((offset * 10) * math.pi / 180)
-    DesiredDistance = 130
+    DesiredDistance = 140
     
     Right = 0
     Left = 0
@@ -167,15 +172,15 @@ def PID(lidarDistanceArray):
     
     if FrontLeft < minLength and BackLeft < minLength and FrontRight < minLength and BackRight < minLength:
         differnece = (BackLeft - FrontLeft) + (FrontRight - BackRight)
-        distDiffernece = DesiredDistance - min(FrontLeft,DesiredDistance + 21) + min(FrontRight,DesiredDistance + 21) - DesiredDistance
+        distDiffernece = DesiredDistance - FrontLeft + FrontRight - DesiredDistance
     
     elif FrontLeft < minLength and BackLeft < minLength:
         differnece = BackLeft - FrontLeft
-        distDiffernece =  DesiredDistance - min(FrontLeft,DesiredDistance + 21)
+        distDiffernece = DesiredDistance - FrontLeft
 
     elif FrontRight < minLength and BackRight < minLength:
         differnece = FrontRight - BackRight
-        distDiffernece = min(FrontRight,DesiredDistance + 21) - DesiredDistance
+        distDiffernece = FrontRight - DesiredDistance
 
     else:
         distDiffernece = 0
@@ -191,18 +196,23 @@ def PID(lidarDistanceArray):
         else:
 
             differnece = (angle - (90 * currentFacingDirection))
+            
+        if lidarDistanceArray[0] > 200: 
+            if lidarDistanceArray[2] < 200:
+                distDiffernece = 20
+                print("NOT A GOOD WALL 1")
+            elif lidarDistanceArray[33] < 200:
+                distDiffernece = -20
+                print("NOT A GOOD WALL 2")
        
 
-    proportion = (differnece + distDiffernece/3)
+    proportion = (differnece + distDiffernece / 1)
     
     integral  += proportion
     derivative = proportion - last_error
     last_error = proportion
     
     turn = KP*proportion + KI*integral + KD*derivative
-    
-    if(integral > 60 and integral < -60 and lidarDistanceArray[18] > 200 and lidarDistanceArray[0] > 200):
-        baseMotorSpeed = 10
     
     MoveMotors(baseMotorSpeed - turn,baseMotorSpeed + turn)  
 
@@ -293,16 +303,16 @@ def moveDirection(direction):
     if currentFacingDirectionLast != direction:
         if direction == 0:
             print("TURN NORTH")
-            turn(getCurrentAngle(),0)
+            turn(getCurrentAngle(),0,0)
         elif direction == 1:
             print("TURN EAST")
-            turn(getCurrentAngle(),90)
+            turn(getCurrentAngle(),90,0)
         elif direction == 2:
             print("TURN SOUTH")
-            turn(getCurrentAngle(),180)
+            turn(getCurrentAngle(),180,0)
         elif direction == 3:
             print("TURN WEST")
-            turn(getCurrentAngle(),270)
+            turn(getCurrentAngle(),270,0)
         finishTurn(lidarArray)
             
         currentFacingDirectionLast = currentFacingDirection
@@ -336,6 +346,8 @@ def MoveForward(lidarData,pitch):
     return True
     
 def finishTurn(lidarDistanceArray):
+    global paused
+    
     proportion = 0
     derivative = 0
     last_error = 0
@@ -358,7 +370,15 @@ def finishTurn(lidarDistanceArray):
             Front = math.cos(angle) * lidarDistanceArray[9 - offset]
             Back = math.cos(angle) * lidarDistanceArray[9 + offset]
             
-            while(abs(Back - Front) > 1):
+            while(abs(Back - Front) > 1 and not paused):
+
+                if PauseButton():
+                    paused = not paused
+                    StopMotors()
+                    
+                    while PauseButton():
+                            print("PAUSE button hold")
+
                 lidarDistanceArray = readLidar()
     
                 Front = math.cos(angle) * lidarDistanceArray[9 - offset]
@@ -386,7 +406,15 @@ def finishTurn(lidarDistanceArray):
             Front = math.cos(angle) * lidarDistanceArray[27 - offset]
             Back = math.cos(angle) * lidarDistanceArray[27 + offset]
             
-            while(abs(Back - Front) > 1):
+            while(abs(Back - Front) > 1 and not paused):
+
+                if PauseButton():
+                    paused = not paused
+                    StopMotors()
+                    
+                    while PauseButton():
+                            print("PAUSE button hold")
+                            
                 lidarDistanceArray = readLidar()
     
                 Front = math.cos(angle) * lidarDistanceArray[27 - offset]
@@ -440,7 +468,7 @@ def numberFitsEnvelope(front, back, envelope):
     distance = 0
     TileMoved = False
     
-    TileFineMovement = 100
+    TileFineMovement = (tileSize / envelope) * 2
     speedDivider = 3
     #decide on next tile distance
     if not robotOnRamp and not robotWasOnRamp:
@@ -448,7 +476,7 @@ def numberFitsEnvelope(front, back, envelope):
             if front < back and front > 150:
                 nextTileDir = True
                 distance = front
-                nextTile = (int(distance / tileSize)) * tileSize - 190
+                nextTile = (int(distance / tileSize)) * tileSize - 185
                 baseMotorSpeed = startBaseMotorSpeed
                 
             elif back > 150:
@@ -460,14 +488,13 @@ def numberFitsEnvelope(front, back, envelope):
         else:        
             if nextTileDir and front > 0:
                 distance = front
-                #baseMotorSpeed = (int(distance) - nextTile) / 4
                 
                 if (int(distance) - nextTile) > TileFineMovement:
                     baseMotorSpeed = startBaseMotorSpeed
                 elif (int(distance) - nextTile) < -TileFineMovement:
                     baseMotorSpeed = -startBaseMotorSpeed / 2
                 else:
-                    baseMotorSpeed = (int(distance) - nextTile) / speedDivider
+                    baseMotorSpeed = startBaseMotorSpeed / speedDivider
                     
                 TileMoved = abs(distance - nextTile) < (tileSize / envelope)
                 
@@ -481,16 +508,20 @@ def numberFitsEnvelope(front, back, envelope):
                 elif -(int(distance) - nextTile) < -TileFineMovement:
                     baseMotorSpeed = -startBaseMotorSpeed / 2
                 else:
-                    baseMotorSpeed = -(int(distance) - nextTile) / speedDivider
+                    baseMotorSpeed = startBaseMotorSpeed / speedDivider
                     
                 TileMoved = abs(distance - nextTile) < (tileSize / envelope)
                 
                 
                 
         
-            lessThanTile = (front < 135 and front > 0 or TouchSensors()[0] or TouchSensors()[1])
+            lessThanTile = (front < 150 and front > 0 or TouchSensors()[0] or TouchSensors()[1])
     
-            if (lessThanTile or TileMoved) or nextTile < 0 or firstMove: 
+            if lessThanTile or TileMoved or nextTile < 0 or firstMove: 
+                print("lessThanTile: %s TileMoved: %s"%(lessThanTile,TileMoved))
+                
+                if front < 150:
+                    positionForwardTile(front)
                 firstMove = False
                 nextTile = None
                 nextTileDir = None
@@ -519,7 +550,14 @@ def numberFitsEnvelope(front, back, envelope):
 
     return False
 
-
+def positionForwardTile(front):
+    
+    print("positionForwardTile")
+    while front > 135:
+        front = readLidar()[0]
+        MoveMotors(baseMotorSpeed/2,baseMotorSpeed/2)
+        time.sleep(0.1)
+        
 def changeMap(up,right,down,left):
     print(up, right, down, left)
     print(coords)

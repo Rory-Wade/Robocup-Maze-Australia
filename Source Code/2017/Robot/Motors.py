@@ -508,7 +508,11 @@ def MessageHandle():
 
 
 '''
-12v = 123
+10.9v = 111
+11.0v = 113
+11.9v = 123
+12.0v = 123
+12.4v = 124
 
 '''
 # Handy for interactive testing.
