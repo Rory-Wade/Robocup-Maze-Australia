@@ -1,0 +1,49 @@
+# To start a service
+systemctl start robotbluetooth.service
+systemctl start mainrobot.service
+systemctl start motors.service
+systemctl start lidar.service
+systemctl start victim.service
+
+# To stop a service
+systemctl stop robotbluetooth.service
+systemctl stop mainrobot.service
+systemctl stop motors.service
+systemctl stop lidar.service
+systemctl stop victim.service
+
+# To restart a service
+systemctl restart robotbluetooth.service
+systemctl restart mainrobot.service
+systemctl restart motors.service
+systemctl restart lidar.service
+systemctl restart victim.service
+
+To get the statos of a service (including any messages it writes to stdout/stderr)
+systemctl status robotbluetooth.service
+systemctl status mainrobot.service
+systemctl status motors.service
+systemctl status lidar.service
+systemctl status victim.service
+
+# they are stored in /lib/systemd/system/*.service files.
+
+# DO NOT USE GIT AS ROOT IT DOES NOT HAVE THE CORRECT KEYS TO ACCESS GITHUB.
+# If git gets borked because you ran something as root
+su debian
+cd /home/debian/Robocup-Maze-Australia
+sudo chown -R debian:debian .
+# should now be all fixed!
+
+# to add changes to version control
+su debian
+cd /home/debian/Robocup-Maze-Australia
+git add path/to/file
+git commit -m "message goes here"
+git push
+
+
+# To check services from python:
+from subprocess import call
+returnCode = call(["systemctl", "status", "lidar.service"])
+print(returnCode)
