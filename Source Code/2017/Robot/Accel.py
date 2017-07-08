@@ -108,8 +108,6 @@ def resetIMU():
     bno._write_byte(BNO055_SYS_TRIGGER_ADDR, 0x0)
     bno._operation_mode()
     bno.set_calibration(setCalibrationValue)
-    print(getCurrentPitch())
-    print(getCurrentPitch())
     
 
 

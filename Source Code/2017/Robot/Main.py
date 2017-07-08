@@ -100,9 +100,10 @@ def turn(currentAngle,toAngle,counter):
     
     if PauseButton():
         paused = not paused
+        StopMotors()
         
         while PauseButton():
-                RandomNumberLoop = 1
+                time.sleep(0.5)
                 
     if not paused:
         bluetooth.send_string("%s %s" % ("[BLUE]:","CMP;%i"%int(getCurrentAngle())))
@@ -110,8 +111,9 @@ def turn(currentAngle,toAngle,counter):
         if currentAngle == None:
             time.sleep(0.05)
             return turn(getCurrentAngle(),toAngle,(counter + 1))
-        if counter > stuckOnSpin:
-            print("PLEASE HELP IM STUCK")
+        
+        if counter % 50 == 0:
+            fixTurnOnObstacle(counter/100)
         movingForward = False
         
         if abs((currentAngle - toAngle) % 360) < 3:
@@ -160,7 +162,7 @@ def PID(lidarDistanceArray):
     minLength = 200
     
     angle = ((offset * 10) * math.pi / 180)
-    DesiredDistance = 140
+    DesiredDistance = 138
     
     Right = 0
     Left = 0
@@ -171,8 +173,8 @@ def PID(lidarDistanceArray):
     BackRight = math.cos(angle) * lidarDistanceArray[27 - offset]
     
     if FrontLeft < minLength and BackLeft < minLength and FrontRight < minLength and BackRight < minLength:
-        differnece = (BackLeft - FrontLeft) + (FrontRight - BackRight)
-        distDiffernece = DesiredDistance - FrontLeft + FrontRight - DesiredDistance
+        differnece = ((BackLeft - FrontLeft) + (FrontRight - BackRight)) / 2
+        distDiffernece = (DesiredDistance - FrontLeft + FrontRight - DesiredDistance) / 2
     
     elif FrontLeft < minLength and BackLeft < minLength:
         differnece = BackLeft - FrontLeft
@@ -199,10 +201,10 @@ def PID(lidarDistanceArray):
             
         if lidarDistanceArray[0] > 200: 
             if lidarDistanceArray[2] < 200:
-                distDiffernece = 20
+                distDiffernece = 60
                 print("NOT A GOOD WALL 1")
             elif lidarDistanceArray[33] < 200:
-                distDiffernece = -20
+                distDiffernece = -60
                 print("NOT A GOOD WALL 2")
        
 
@@ -215,8 +217,6 @@ def PID(lidarDistanceArray):
     turn = KP*proportion + KI*integral + KD*derivative
     
     MoveMotors(baseMotorSpeed - turn,baseMotorSpeed + turn)  
-
-
 
 def RampPID(lidarDistanceArray,pitch):
     global RampProportion
@@ -240,7 +240,7 @@ def RampPID(lidarDistanceArray,pitch):
     if pitch > 0:
         baseRampSpeed = 60
     else:
-        baseRampSpeed = 25
+        baseRampSpeed = 40
         KP = 0.2
         KI = 0.01
         KD = 0.2
@@ -284,16 +284,24 @@ lastSentCoords = []
       
 def validTiles(LidarData):
     presetValue = 8
-    offset = 2
+    offset = 3
     tileSize = 300
     
     returnArray = []
     
     angleDistance = 140
     minDirectLength = 100
-    
     for i in range(4):
-            returnArray.append(int(LidarData[i * 9] / tileSize))
+        if i == 0:
+            if LidarData[i * 9] > 230 and LidarData[i * 9 + 3] < 250 and LidarData[33] < 250:
+                returnArray.append(0)  
+            else:
+                returnArray.append(int(LidarData[i * 9] / tileSize))
+        else:
+            if LidarData[i * 9] > 230 and LidarData[i * 9 + 3] < 250 and LidarData[i * 9 - 3] < 250:
+                returnArray.append(0)  
+            else:
+                returnArray.append(int(LidarData[i * 9] / tileSize))
         
     return returnArray
     
@@ -360,11 +368,12 @@ def finishTurn(lidarDistanceArray):
     offset = 1
     minLength = 160
     angle = ((offset * 10) * math.pi / 180)
-    turnTileSize = 200
-
+    turnTileSize = 220
+    obstacleThresh = 10
     lidarDistanceArray = readLidar()
     
-    if(lidarDistanceArray[9] < turnTileSize and lidarDistanceArray[9] > 0):
+    if(lidarDistanceArray[8] < turnTileSize and lidarDistanceArray[8] > 0 and lidarDistanceArray[10] < turnTileSize and lidarDistanceArray[10] > 0 and abs((lidarDistanceArray[8] + lidarDistanceArray[10]) / 2 - lidarDistanceArray[9]) < obstacleThresh):
+
         for i in range(2):  
             lidarDistanceArray = readLidar()
             Front = math.cos(angle) * lidarDistanceArray[9 - offset]
@@ -377,7 +386,7 @@ def finishTurn(lidarDistanceArray):
                     StopMotors()
                     
                     while PauseButton():
-                            print("PAUSE button hold")
+                        time.sleep(0.5)
 
                 lidarDistanceArray = readLidar()
     
@@ -397,10 +406,9 @@ def finishTurn(lidarDistanceArray):
                 elif(abs(turn) < 7):
                     turn = 7
                     
-                #print("prop: %f  Turn: %f  LastError: %f"%(proportion,turn,last_error))
                 MoveMotors(-turn, turn)
             
-    elif(lidarDistanceArray[27] < turnTileSize and lidarDistanceArray[27] > 0):
+    elif(lidarDistanceArray[26] < turnTileSize and lidarDistanceArray[26] > 0 and lidarDistanceArray[28] < turnTileSize and lidarDistanceArray[28] > 0 and abs((lidarDistanceArray[26] + lidarDistanceArray[28]) / 2 - lidarDistanceArray[27]) < obstacleThresh):
         for i in range(2):  
             lidarDistanceArray = readLidar()
             Front = math.cos(angle) * lidarDistanceArray[27 - offset]
@@ -413,7 +421,7 @@ def finishTurn(lidarDistanceArray):
                     StopMotors()
                     
                     while PauseButton():
-                            print("PAUSE button hold")
+                        time.sleep(0.5)
                             
                 lidarDistanceArray = readLidar()
     
@@ -432,8 +440,7 @@ def finishTurn(lidarDistanceArray):
                     turn = (turn / abs(turn)) * 7
                 elif(abs(turn) < 7):
                     turn = 7
-                    
-                #print("prop: %f  Turn: %f  LastError: %f"%(proportion,turn,last_error))
+
                 MoveMotors(-turn, turn)
 
     else:
@@ -442,6 +449,41 @@ def finishTurn(lidarDistanceArray):
         
     StopMotors()
     return True
+    
+def fixTurnOnObstacle(attempt):
+    StopMotors()
+    print("Begining Builtin Movements - turn")
+    if attempt == 1:
+        print("1")
+        MoveMotors(100, 100)
+        time.sleep(0.6)
+        MoveMotors(0, 0)
+
+    elif attempt == 1.5:
+        print("2")
+        MoveMotors(-100, -100)
+        time.sleep(0.6)
+        MoveMotors(0, 0)
+    elif attempt == 2:
+        print("2")
+        MoveMotors(-50, -100)
+        time.sleep(0.6)
+        MoveMotors(0, 0)
+    elif attempt == 2.5:
+        print("2")
+        MoveMotors(100, 50)
+        time.sleep(0.6)
+        MoveMotors(0, 0)
+    elif attempt == 3:
+        print("3")
+        MoveMotors(0, -100)
+        time.sleep(0.6)
+        MoveMotors(0, 0)
+    elif attempt == 3.5:
+        print("3")
+        MoveMotors(-100, 0)
+        time.sleep(0.6)
+        MoveMotors(0, 0)
     
 def wentUpRamp():
     global robotZ
@@ -491,8 +533,8 @@ def numberFitsEnvelope(front, back, envelope):
                 
                 if (int(distance) - nextTile) > TileFineMovement:
                     baseMotorSpeed = startBaseMotorSpeed
-                elif (int(distance) - nextTile) < -TileFineMovement:
-                    baseMotorSpeed = -startBaseMotorSpeed / 2
+                # elif (int(distance) - nextTile) < -TileFineMovement:
+                #     baseMotorSpeed = -startBaseMotorSpeed / 2
                 else:
                     baseMotorSpeed = startBaseMotorSpeed / speedDivider
                     
@@ -505,22 +547,18 @@ def numberFitsEnvelope(front, back, envelope):
                 
                 if -(int(distance) - nextTile) > TileFineMovement:
                     baseMotorSpeed = startBaseMotorSpeed
-                elif -(int(distance) - nextTile) < -TileFineMovement:
-                    baseMotorSpeed = -startBaseMotorSpeed / 2
+                # elif -(int(distance) - nextTile) < -TileFineMovement:
+                #     baseMotorSpeed = -startBaseMotorSpeed / 2
                 else:
                     baseMotorSpeed = startBaseMotorSpeed / speedDivider
                     
                 TileMoved = abs(distance - nextTile) < (tileSize / envelope)
                 
-                
-                
-        
             lessThanTile = (front < 150 and front > 0 or TouchSensors()[0] or TouchSensors()[1])
     
             if lessThanTile or TileMoved or nextTile < 0 or firstMove: 
-                print("lessThanTile: %s TileMoved: %s"%(lessThanTile,TileMoved))
-                
-                if front < 150:
+              
+                if front > 0 and front < 250:
                     positionForwardTile(front)
                 firstMove = False
                 nextTile = None
@@ -529,8 +567,10 @@ def numberFitsEnvelope(front, back, envelope):
                 return True
     elif(robotWasOnRamp == True and not robotOnRamp):
         
-        nextTile = (int(front / tileSize) + 1) * tileSize - 200
-        
+        nextTile = (int(front / tileSize) + 1) * tileSize - 185
+        print("OKAY POSITION IN TILE COMMENCE")
+        print(nextTile)
+        print(front)
         if robotRampDirection != None:
             if robotRampDirection:
                 wentUpRamp()
@@ -934,8 +974,6 @@ def invalidLidarData(array):
     print("INVALID DATA")
     return True
         
-        
-print("ONLINE")
 
 def returnTileAtDeltaDirection(distance,direction,basecoords):
     if direction == 0:
@@ -1032,9 +1070,13 @@ def blackTile():
     backtraceArray.pop()
 
 def MoveBackFromBlack(lidarArray):
+    global paused
+    
     envelope = 15
+    
     front = lidarArray[0]
     back = lidarArray[18]
+    
     distance = 0
     TileMoved = False
     baseMotorSpeed = 20
@@ -1052,7 +1094,15 @@ def MoveBackFromBlack(lidarArray):
     
     movingBack = True    
     
-    while movingBack:    
+    while movingBack and not paused:
+    
+        if PauseButton():
+            paused = not paused
+            StopMotors()
+            
+            while PauseButton():
+                    time.sleep(0.5)
+                
         lidarArray = readLidar()
         
         front = lidarArray[0]
@@ -1167,12 +1217,14 @@ def updateBluetoothMaps(lidarArray):
     bluetooth.send_string("%s BTA;%s" % ("[BLUE]:", json.dumps(backtraceArray, ensure_ascii=True)))
     bluetooth.send_string("%s MAP;%s" % ("[BLUE]:",stringMap))
     
-    
-resetIMU()
+
+print("Main Code Ready...")
+
 while True:
     
     if PauseButton():
         paused = not paused
+        StopMotors()
         
         if not initialPause:
             wasPaused = True
@@ -1185,7 +1237,6 @@ while True:
             bluetooth.send_string("%s PAU;TRUE")
         
         while PauseButton():
-            StopMotors()
             time.sleep(0.5)
             
     if not paused:
@@ -1213,24 +1264,24 @@ while True:
 
             if robotRampDirection != None:
                 if finishTurn(lidarArray):
-                    print("HEY")
+                    print("RESET IMU? maybe?")
                 robotRampDirection = None  
                 
-            '''response = raw_input("Heat?")
-            if response == "y":
-                response = raw_input("Left Side?")
-                if response == "y":
-                    response = raw_input("NewTile?")
-                    if response == "y":
-                        print(victimOn(True,True))
-                    else:
-                        print(victimOn(True,False))
-                else:
-                    response = raw_input("NewTile?")
-                    if response == "y":
-                        print(victimOn(False,True))
-                    else:
-                        print(victimOn(False,False))'''
+            # response = raw_input("Heat?")
+            # if response == "y":
+            #     response = raw_input("Left Side?")
+            #     if response == "y":
+            #         response = raw_input("NewTile?")
+            #         if response == "y":
+            #             print(victimOn(True,True))
+            #         else:
+            #             print(victimOn(True,False))
+            #     else:
+            #         response = raw_input("NewTile?")
+            #         if response == "y":
+            #             print(victimOn(False,True))
+            #         else:
+            #             print(victimOn(False,False))
 
             if tileColour() == 1:
                 print("silver Tile")
@@ -1269,6 +1320,7 @@ while True:
 while True:
     print("Getting Lidar Data and finishing turn")
     print(validTiles(readLidar()))
+    finishTurn(readLidar())
     print("Done")
     time.sleep(3)
-'''  
+'''
