@@ -70,22 +70,30 @@
 #     print("Caught error, safely stopping lidar")
 #     lidar.stop()
 import zmq
-from rplidar import RPLidar
+from rplidar import *
 import json
 import time
 import math
 
 print("Start")
 
-lidar = RPLidar('/dev/ttyUSB0')
+lidar = None
+initialised = False
+while not initialised:
+    try:
+        lidar = RPLidar('/dev/ttyUSB0')
+        print(lidar.get_info())
+        print(lidar.get_health())
+        initialised = True
+    except Exception as e:
+        print (e)
+        print("Caught error in init, retrying...")
 
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
 socket.set_hwm(1)
 socket.bind("tcp://*:5556")
 
-print(lidar.get_info())
-print(lidar.get_health())
 
 lidarArray = [0] * 36
 inc = 360 / len(lidarArray) 
