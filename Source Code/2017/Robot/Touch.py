@@ -2,13 +2,14 @@ import time
 import Adafruit_BBIO.GPIO as GPIO
 import Adafruit_BBIO.ADC as ADC
 
-
-try:
-    ADC.setup()
-except Exception as e:
-    print("ADC error:")
-    print(e)
-    ADC.setup()
+initialised = False
+while not initialised:
+    try:
+        ADC.setup()
+        initialised = True
+    except Exception as e:
+        print("ADC error:")
+        print(e)
 
 PAUSE_BUTTON = "P9_16"
 LEFT_FRONT_TOUCH_SENSOR = "AIN1"
