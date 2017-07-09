@@ -8,6 +8,7 @@ from copy import copy, deepcopy
 from Accel import *
 from Touch import *
 from Light import *
+#from Victim import *
 
 context = zmq.Context()
 
@@ -154,15 +155,15 @@ def PID(lidarDistanceArray):
     global last_error
     global baseMotorSpeed
     
-    KP = 0.52
+    KP = 0.5
     KI = 0.04
-    KD = 0.5
+    KD = 0.45
     
     offset = 2
     minLength = 200
     
     angle = ((offset * 10) * math.pi / 180)
-    DesiredDistance = 138
+    DesiredDistance = 135
     
     Right = 0
     Left = 0
@@ -329,7 +330,44 @@ def readLidar():
     lidarINPUT = lidar.recv_string().split(":")
     lidarINPUT = json.loads(lidarINPUT[1])
     return lidarINPUT
-    
+
+            
+def checkVictims(lidarTiles):
+    validateVictimDetection(readCamera(0,LeftCam),lidarTiles)
+    validateVictimDetection(readCamera(1,RightCam),lidarTiles)
+    #validateVictimDetection(readCamera(0,LeftCam),[0,0,0,0])
+    #validateVictimDetection(readCamera(0,LeftCam),[0,0,0,0])
+
+
+#side return
+# 0 = L
+# 1 = R
+
+#data structure
+#[side,char]
+
+def validateVictimDetection(sensorData,lidarData):
+    lidarTiles = validTiles(lidarData)
+    if sensorData[1] == 0:
+        return 0
+        
+    if (sensorData[0] == 0 and lidarData[3] == 0) or (sensorData[0] == 1 and lidarData[1] == 0): #Left - Right
+        print("victimDetected")
+        StopMotors()
+        time.sleep(5)
+        
+        if nextTileDir:
+            distance = lidarData[0]
+        else:
+            distance = lidarData[18]
+        
+        lastTile = abs(distance - nextTile) > (tileSize / 2)
+
+        dropRescueKit(victimOn(True,lastTile),sensorData[1],sensorData[0])
+
+    else:
+        return 0
+
 def MoveMotors(Linput,Rinput):
     motors.send(b"%i,%i" % (Linput,Rinput))
     message = motors.recv()
@@ -1252,6 +1290,7 @@ while True:
 
             if IMUAngle < RAMP_UP_ANGLE and IMUAngle > RAMP_DOWN_ANGLE:
                 PID(lidarArray)
+                checkVictims(lidarArray)
                 robotOnRamp = False
             else:
                 RampPID(lidarArray,IMUAngle)
@@ -1264,7 +1303,7 @@ while True:
 
             if robotRampDirection != None:
                 if finishTurn(lidarArray):
-                    print("RESET IMU? maybe?")
+                    pass
                 robotRampDirection = None  
                 
             # response = raw_input("Heat?")
