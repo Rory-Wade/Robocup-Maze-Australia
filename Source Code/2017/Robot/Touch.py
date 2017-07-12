@@ -11,7 +11,7 @@ while not initialised:
         print("ADC error:")
         print(e)
 
-PAUSE_BUTTON = "P9_16"
+PAUSE_BUTTON = "P9_25"
 LEFT_FRONT_TOUCH_SENSOR = "AIN1"
 RIGHT_FRONT_TOUCH_SENSOR = "AIN3"
 LEFT_BACK_TOUCH_SENSOR = "AIN0"
@@ -22,7 +22,12 @@ TOUCH_BUTTONS = [LEFT_FRONT_TOUCH_SENSOR,RIGHT_FRONT_TOUCH_SENSOR,LEFT_BACK_TOUC
 GPIO.setup(PAUSE_BUTTON, GPIO.IN) 
 
 def PauseButton():
-    return bool(GPIO.input(PAUSE_BUTTON))
+    GPIO.setup(PAUSE_BUTTON, GPIO.IN) 
+    state = bool(GPIO.input(PAUSE_BUTTON))
+    GPIO.setup(PAUSE_BUTTON, GPIO.OUT)
+    GPIO.output("P8_41",GPIO.LOW)
+    GPIO.setup(PAUSE_BUTTON, GPIO.IN) 
+    return state
     
 def TouchSensors():
     values = []
