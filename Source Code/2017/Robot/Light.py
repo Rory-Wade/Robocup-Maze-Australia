@@ -1,10 +1,15 @@
 import time
 import Adafruit_TCS34725
 
-tcs = Adafruit_TCS34725.TCS34725(busnum=2,gain=Adafruit_TCS34725.TCS34725_GAIN_16X)
-
-tcs.set_interrupt(False)
-
+initialised = False
+while not initialised:
+    try:
+        tcs = Adafruit_TCS34725.TCS34725(busnum=2,gain=Adafruit_TCS34725.TCS34725_GAIN_16X)
+        tcs.set_interrupt(False)
+        initialised = True
+    except Exception as e:
+        print(e)
+        print("Re-Initialise light sensors...")
 LOWER_BOUND_WHITE = 120
 HIGHER_BOUND_BLACK = 20
 
