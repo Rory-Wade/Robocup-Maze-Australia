@@ -46,6 +46,7 @@ while not initialised:
     except Exception as e:
         print(e)
         print("Failed to initialise BNO055! Is the sensor connected?")
+        time.sleep(1)
 if not bno.begin(mode = bnoMode):
     raise RuntimeError('Failed to initialize BNO055! Is the sensor connected?')
 

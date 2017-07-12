@@ -47,3 +47,6 @@ git push
 from subprocess import call
 returnCode = call(["systemctl", "status", "lidar.service"])
 print(returnCode)
+
+#Find IP 
+ip a
