@@ -10,23 +10,28 @@ while not initialised:
     except Exception as e:
         print("ADC error:")
         print(e)
+        time.sleep(1)
 
 PAUSE_BUTTON = "P9_25"
-LEFT_FRONT_TOUCH_SENSOR = "AIN1"
-RIGHT_FRONT_TOUCH_SENSOR = "AIN3"
-LEFT_BACK_TOUCH_SENSOR = "AIN0"
-RIGHT_BACK_TOUCH_SENSOR = "AIN2"
+FAR_LEFT_TOUCH_SENSOR = "AIN0"
+MID_LEFT_TOUCH_SENSOR = "AIN1"
+FAR_RIGHT_TOUCH_SENSOR = "AIN2"
+MID_RIGHT_TOUCH_SENSOR = "AIN3"
 
-TOUCH_BUTTONS = [LEFT_FRONT_TOUCH_SENSOR,RIGHT_FRONT_TOUCH_SENSOR,LEFT_BACK_TOUCH_SENSOR,RIGHT_BACK_TOUCH_SENSOR]
+TOUCH_BUTTONS = [FAR_LEFT_TOUCH_SENSOR,MID_LEFT_TOUCH_SENSOR,MID_RIGHT_TOUCH_SENSOR,FAR_RIGHT_TOUCH_SENSOR]
 
 GPIO.setup(PAUSE_BUTTON, GPIO.IN) 
 
 def PauseButton():
     GPIO.setup(PAUSE_BUTTON, GPIO.IN) 
     state = bool(GPIO.input(PAUSE_BUTTON))
-    GPIO.setup(PAUSE_BUTTON, GPIO.OUT)
-    GPIO.output("P8_41",GPIO.LOW)
-    GPIO.setup(PAUSE_BUTTON, GPIO.IN) 
+    
+    if state:
+        time.sleep(0.1)
+        GPIO.setup(PAUSE_BUTTON, GPIO.OUT)
+        GPIO.output("P8_41",GPIO.LOW)
+        GPIO.setup(PAUSE_BUTTON, GPIO.IN) 
+    
     return state
     
 def TouchSensors():
@@ -70,9 +75,5 @@ if __name__ == "__main__":
         
         print(TouchSensors())
         print(PauseButton())
-        time.sleep(1)
-        
-        #LightUp(1,0,1)
-        #time.sleep(0.5)
-        LightUp(1,1,1)
-        time.sleep(1)
+        time.sleep(0.1)
+

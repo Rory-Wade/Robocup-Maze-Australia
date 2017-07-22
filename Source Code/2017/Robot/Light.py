@@ -4,28 +4,54 @@ import Adafruit_TCS34725
 initialised = False
 while not initialised:
     try:
-        tcs = Adafruit_TCS34725.TCS34725(busnum=2,gain=Adafruit_TCS34725.TCS34725_GAIN_16X)
-        tcs.set_interrupt(False)
+        LightSensorRight = Adafruit_TCS34725.TCS34725(busnum=2,gain=Adafruit_TCS34725.TCS34725_GAIN_60X)
+        LightSensorRight.set_interrupt(False)
         initialised = True
     except Exception as e:
         print(e)
-        print("Re-Initialise light sensors...")
-LOWER_BOUND_WHITE = 120
-HIGHER_BOUND_BLACK = 20
+        print("Re-Initialise right light sensors...")
+
+initialised = False
+while not initialised:
+    try:
+        LightSensorLeft = Adafruit_TCS34725.TCS34725(busnum=1,gain=Adafruit_TCS34725.TCS34725_GAIN_60X)
+        LightSensorLeft.set_interrupt(False)
+        initialised = True
+    except Exception as e:
+        print(e)
+        print("Re-Initialise left light sensors...")
+        
+LOWER_BOUND_WHITE = 300
+HIGHER_BOUND_BLACK = 100
 
 print("Light Sensor Active: Good \n")
 
 def tileColour():
-    r, g, b, c = tcs.get_raw_data()
+    Rr, Rg, Rb, Rc = LightSensorRight.get_raw_data()
     
-    lux = Adafruit_TCS34725.calculate_lux(r, g, b)
+    Rightlux = Adafruit_TCS34725.calculate_lux(Rr, Rg, Rb)
+    
+    Lr, Lg, Lb, Lc = LightSensorLeft.get_raw_data()
+    
+    Leftlux = Adafruit_TCS34725.calculate_lux(Lr, Lg, Lb)
         
-    if(lux > LOWER_BOUND_WHITE):
+    if(Leftlux > LOWER_BOUND_WHITE and Rightlux > LOWER_BOUND_WHITE):
         return None
-    elif(lux < HIGHER_BOUND_BLACK):
+    elif(Leftlux < HIGHER_BOUND_BLACK and Rightlux < HIGHER_BOUND_BLACK):
         return 0 #black
     
     return 1 # else its silver
+
+def valueColour():
+    Rr, Rg, Rb, Rc = LightSensorRight.get_raw_data()
+    
+    Rightlux = Adafruit_TCS34725.calculate_lux(Rr, Rg, Rb)
+    
+    Lr, Lg, Lb, Lc = LightSensorLeft.get_raw_data()
+    
+    Leftlux = int(Adafruit_TCS34725.calculate_lux(Lr, Lg, Lb) * 1.3)
+        
+    return [Rightlux,Leftlux] # else its silver
     
 '''
 BLACK
@@ -50,30 +76,8 @@ Luminosity: 102 lux
 '''
 
 if __name__ == "__main__":
-    
-    # Read the R, G, B, C color data.
-    r, g, b, c = tcs.get_raw_data()
-    
-    # Calculate color temperature using utility functions.  You might also want to
-    # check out the colormath library for much more complete/accurate color functions.
-    color_temp = Adafruit_TCS34725.calculate_color_temperature(r, g, b)
-    
-    # Calculate lux with another utility function.
-    lux = Adafruit_TCS34725.calculate_lux(r, g, b)
-    
-    # Print out the values.
-    print('Color: red={0} green={1} blue={2} clear={3}'.format(r, g, b, c))
-    
-    # Print out color temperature.
-    if color_temp is None:
-        print('Too dark to determine color temperature!')
-    else:
-        print('Color Temperature: {0} K'.format(color_temp))
-    
-    # Print out the lux.
-    print('Luminosity: {0} lux'.format(lux))
-    
-    print(tileColour())
-    # Enable interrupts and put the chip back to low power sleep/disabled.
-    tcs.set_interrupt(True)
-    tcs.disable()
+    while True:
+        
+        print(tileColour())
+        print(valueColour())
+        time.sleep(1)

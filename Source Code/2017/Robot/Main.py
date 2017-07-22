@@ -5,10 +5,10 @@ import math
 import atexit
 from copy import copy, deepcopy
 
-from Accel import *
 from Touch import *
 from Light import *
-#from Victim import *
+from Victims import *
+from Accel import *
 
 context = zmq.Context()
 
@@ -102,6 +102,7 @@ def turn(currentAngle,toAngle,counter):
     if PauseButton():
         paused = not paused
         StopMotors()
+        time.sleep(2)
         
         while PauseButton():
                 time.sleep(0.5)
@@ -335,8 +336,8 @@ def readLidar():
 def checkVictims(lidarTiles):
     validateVictimDetection(readCamera(0,LeftCam),lidarTiles)
     validateVictimDetection(readCamera(1,RightCam),lidarTiles)
-    #validateVictimDetection(readCamera(0,LeftCam),[0,0,0,0])
-    #validateVictimDetection(readCamera(0,LeftCam),[0,0,0,0])
+    validateVictimDetection(readHeat(0),lidarTiles)
+    validateVictimDetection(readHeat(1),lidarTiles)
 
 
 #side return
@@ -352,7 +353,10 @@ def validateVictimDetection(sensorData,lidarData):
         return 0
         
     if (sensorData[0] == 0 and lidarData[3] == 0) or (sensorData[0] == 1 and lidarData[1] == 0): #Left - Right
+        
+        bluetooth.send_string("%s MES;Victim Detected")
         print("victimDetected")
+        
         StopMotors()
         time.sleep(5)
         
@@ -592,23 +596,23 @@ def numberFitsEnvelope(front, back, envelope):
                     
                 TileMoved = abs(distance - nextTile) < (tileSize / envelope)
                 
-            lessThanTile = (front < 150 and front > 0 or TouchSensors()[0] or TouchSensors()[1])
+            lessThanTile = (front < 150 and front > 0 or TouchSensors()[0] and TouchSensors()[1])
     
             if lessThanTile or TileMoved or nextTile < 0 or firstMove: 
-              
-                if front > 0 and front < 250:
-                    positionForwardTile(front)
                 firstMove = False
                 nextTile = None
                 nextTileDir = None
                 
                 return True
+                
     elif(robotWasOnRamp == True and not robotOnRamp):
         
         nextTile = (int(front / tileSize) + 1) * tileSize - 185
+        
         print("OKAY POSITION IN TILE COMMENCE")
         print(nextTile)
         print(front)
+        
         if robotRampDirection != None:
             if robotRampDirection:
                 wentUpRamp()
@@ -1189,6 +1193,7 @@ def silverTile():
     global lastDirection
     global lastSilverTileCoords
     global lastSilverTileDirection
+    
     lastSilverTileCoords = [coords[0],coords[1]]
     lastSilverTileDirection = int(str(lastDirection))
     silverBacktraceArray = deepcopy(backtraceArray)
@@ -1263,6 +1268,7 @@ while True:
     if PauseButton():
         paused = not paused
         StopMotors()
+        time.sleep(2)
         
         if not initialPause:
             wasPaused = True
@@ -1350,10 +1356,17 @@ while True:
                 paused = True
                 
             updateBluetoothMaps(lidarArray)
-            time.sleep(2)
             print("-------------------------------------------")
     else:
         StopMotors()
+        
+        if TouchSensors[0] and TouchSensors[1]:
+            
+            bluetooth.send_string("%s MES;RESETING IMU NOW")
+            print("RESETING IMU NOW")
+            resetIMU()
+            bluetooth.send_string("%s MES;RESETING IMU DONE")
+            print("RESETING IMU DONE")
 
 '''
 while True:

@@ -1,15 +1,5 @@
 #!/usr/bin/env python
-#
-# dynamixel.py, based on the same by Mac Mason <mac@cs.duke.edu>
-#
-# Pythonic access to a Robotis AX-12 servo. Requires pySerial, but is
-# otherwise pure Python, and should JustWork(TM).
-#
-# This code is made available under a Creative Commons
-# Attribution-Noncommercial-Share-Alike 3.0 license. See
-# <http://creativecommons.org/licenses/by-nc-sa/3.0> for details. If you'd
-# like some other license, send me an e-mail. If you're doing something cool
-# with this code, send me an e-mail, too: I'd like to see it.
+
 
 import sys
 import serial

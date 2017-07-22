@@ -88,7 +88,7 @@ while not initialised:
     except Exception as e:
         print (e)
         print("Caught error in init, retrying...")
-        time.sleep(1)
+        time.sleep(5)
 
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
