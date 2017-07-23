@@ -20,8 +20,11 @@ class MLX90614:
     def _readTemp(self, reg):
         temp = 1000
         while temp > 100:
-            temp = self._i2c.readS16(reg)
-            temp = temp * .02 - 273.15
+            try:
+                temp = self._i2c.readS16(reg)
+                temp = temp * .02 - 273.15
+            except Exception, e:
+                print(e)
         return temp
         
 LeftCam = serial.Serial(
@@ -43,7 +46,7 @@ RightCam = serial.Serial(
 RightHeat =  MLX90614(address=0x5b)
 LeftHeat = MLX90614(address=0x5a)
 
-victimHeat = 27
+victimHeat = 26
 MaxVictimHeat = 70
 
 #char return
@@ -141,18 +144,8 @@ def dropRescueKit(drop,amount,side):
 
 if __name__ == "__main__":    
     while True:
-        if readCamera(0,LeftCam)[1] > 1:
-            print("HEY")
-            LeftCam.write("D1")
-            time.sleep(2)
-            LeftCam.write("D1")
-            time.sleep(2)
-        if readCamera(0,RightCam)[1] > 1:
-            print("HI")
-            RightCam.write("D1")
-            time.sleep(2)
-            RightCam.write("D1")
-            time.sleep(2)
-        time.sleep(1)
+        print(readHeat(0))
+        print(readHeat(1))
+        time.sleep(0.2)
         
     

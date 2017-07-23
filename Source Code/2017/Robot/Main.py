@@ -202,12 +202,18 @@ def PID(lidarDistanceArray):
             differnece = (angle - (90 * currentFacingDirection))
             
         if lidarDistanceArray[0] > 200: 
+            TouchSensorValues = TouchSensors()
             if lidarDistanceArray[2] < 200:
-                distDiffernece = 60
+                distDiffernece = 30
                 print("NOT A GOOD WALL 1")
             elif lidarDistanceArray[33] < 200:
-                distDiffernece = -60
+                distDiffernece = -30
                 print("NOT A GOOD WALL 2")
+            elif TouchSensorValues[0]:
+                fixForwardWithSideObstacle(0)    
+            elif TouchSensorValues[3]:
+                fixForwardWithSideObstacle(1)
+                
        
 
     proportion = (differnece + distDiffernece / 1)
@@ -352,24 +358,27 @@ def validateVictimDetection(sensorData,lidarData):
     if sensorData[1] == 0:
         return 0
         
-    if (sensorData[0] == 0 and lidarData[3] == 0) or (sensorData[0] == 1 and lidarData[1] == 0): #Left - Right
+    if (sensorData[0] == 0 and lidarTiles[3] == 0) or (sensorData[0] == 1 and lidarTiles[1] == 0): #Left - Right
         
         bluetooth.send_string("%s MES;Victim Detected")
         print("victimDetected")
-        
-        StopMotors()
-        time.sleep(5)
         
         if nextTileDir:
             distance = lidarData[0]
         else:
             distance = lidarData[18]
-        
-        lastTile = abs(distance - nextTile) > (tileSize / 2)
-
-        dropRescueKit(victimOn(True,lastTile),sensorData[1],sensorData[0])
-
+            
+        if nextTile != None:
+            lastTile = abs(distance - nextTile) > (tileSize / 2)
+    
+            if victimOn(True,lastTile):
+                StopMotors()
+                time.sleep(1)
+                dropRescueKit(True,sensorData[1],sensorData[0])
+            else:
+                print("Next Tile was equal to None!")
     else:
+        print("Detected possible victim but it didnt work out")
         return 0
 
 def MoveMotors(Linput,Rinput):
@@ -491,6 +500,21 @@ def finishTurn(lidarDistanceArray):
         
     StopMotors()
     return True
+
+def fixForwardWithSideObstacle(side):
+    if side == 0:
+        MoveMotors(-60, -10)
+        time.sleep(0.4)
+        MoveMotors(-10, -60)
+        time.sleep(0.4)
+        MoveMotors(40, 30)
+    else:
+        MoveMotors(-30, -50)
+        time.sleep(0.6)
+        MoveMotors(30, 50)
+
+    time.sleep(0.8)
+    MoveMotors(0, 0)
     
 def fixTurnOnObstacle(attempt):
     StopMotors()
@@ -595,14 +619,14 @@ def numberFitsEnvelope(front, back, envelope):
                     baseMotorSpeed = startBaseMotorSpeed / speedDivider
                     
                 TileMoved = abs(distance - nextTile) < (tileSize / envelope)
-                
-            lessThanTile = (front < 150 and front > 0 or TouchSensors()[0] and TouchSensors()[1])
+            
+            TouchSensorValues = TouchSensors()    
+            lessThanTile = (front < 150 and front > 0 or TouchSensorValues[1] or TouchSensorValues[2])
     
             if lessThanTile or TileMoved or nextTile < 0 or firstMove: 
                 firstMove = False
                 nextTile = None
                 nextTileDir = None
-                
                 return True
                 
     elif(robotWasOnRamp == True and not robotOnRamp):
@@ -1360,7 +1384,7 @@ while True:
     else:
         StopMotors()
         
-        if TouchSensors[0] and TouchSensors[1]:
+        if TouchSensors()[0] and TouchSensors()[1]:
             
             bluetooth.send_string("%s MES;RESETING IMU NOW")
             print("RESETING IMU NOW")
