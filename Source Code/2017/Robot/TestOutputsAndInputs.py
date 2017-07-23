@@ -16,29 +16,27 @@ print("------------INITIALISING-------------\n")
 print("Testing All Vital Parts of the robot\n")
 
 print("-->Checking Main Code Status")
-status = subprocess.call("systemctl is-active mainrobot.service", shell=True)
+status = subprocess.call("systemctl is-active mainrobot.service >/dev/null", shell=True)
 if status == 0:
     print("STOPPING MAIN PROGRAM!")
     subprocess.call("systemctl stop mainrobot.service", shell=True)
-
-time.sleep(1) 
+print("DONE\n")
 
 print("-->Checking Lidar Status")    
-status = subprocess.call("systemctl is-active lidar.service", shell=True)
+status = subprocess.call("systemctl is-active lidar.service >/dev/null", shell=True)
 if status > 0:
     print("STARTING LIDAR PROGRAM!")
     subprocess.call("systemctl start lidar.service", shell=True)
     
-time.sleep(1)
-
+print("DONE\n")
 print("-->Checking Morots Status")    
-status = subprocess.call("systemctl is-active motors.service", shell=True)
+status = subprocess.call("systemctl is-active motors.service >/dev/null", shell=True)
 if status > 0:
     print("STARTING MOTORS PROGRAM!")
     subprocess.call("systemctl start motors.service", shell=True)
     
-print("\nDONE\n")
-time.sleep(1)
+print("DONE\n")
+
 print("-->Initialising the ZMQ")
 import zmq
 context = zmq.Context()

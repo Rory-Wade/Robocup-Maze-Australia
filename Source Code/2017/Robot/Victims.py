@@ -141,7 +141,10 @@ def dropRescueKit(drop,amount,side):
                     return False
             else:
                 return False
-
+def resetCamBuffer():
+    LeftCam.reset_input_buffer()
+    RightCam.reset_input_buffer()
+    
 if __name__ == "__main__":    
     while True:
         print(readHeat(0))

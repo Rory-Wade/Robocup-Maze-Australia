@@ -6,9 +6,57 @@ import struct
 import threading
 import string
 import psutil
-from subprocess import call
+import subprocess
+connected = False
+
+def ManagePrograms():
+    while True:
+        status = subprocess.call("systemctl is-active mainrobot.service >/dev/null", shell=True)
+        if status != 0:
+            subprocess.call("systemctl start mainrobot.service", shell=True)
+            
+            if connected:
+                sendMessage("MSG;Main Robot Code Has Stopped! Code Has Been Restarted.")
+            else:
+                print(">Main Robot Code Has Stopped! Code Has Been Restarted.")
+        
+        status = subprocess.call("systemctl is-active lidar.service >/dev/null", shell=True)
+        if status != 0:
+            subprocess.call("systemctl start lidar.service", shell=True)
+            
+            if connected:
+                sendMessage("MSG;Lidar Code Has Stopped! Code Has Been Restarted.")
+            else:
+                print(">Lidar Code Has Stopped! Code Has Been Restarted.")
+        
+        
+        status = subprocess.call("systemctl is-active motors.service >/dev/null", shell=True)
+        if status != 0:
+            subprocess.call("systemctl start motors.service", shell=True)
+            
+            if connected:
+                sendMessage("MSG;Motor Code Has Stopped! Code Has Been Restarted.")
+            else:
+                print(">Motor Code Has Stopped! Code Has Been Restarted.")
+                
+        time.sleep(3)
+        
+def SndSytmDiag():
+    while True:
+        sendMessage("CPU;"+str(psutil.cpu_percent()))
+        sendMessage("MEM;"+str(psutil.virtual_memory().percent))
+        time.sleep(1)
+
+def sendMessage(theMessage):
+    theMessage = str(theMessage)
+    theTuple = struct.unpack("4b", struct.pack("I", len(theMessage)))
+    message = chr(theTuple[3] % 256) + chr(theTuple[2] % 256) + chr(theTuple[1] % 256) + chr(theTuple[0] % 256) + theMessage.encode('ascii')
+    print(message)
+    
+    sock.send(message)
 
 
+print("------------Bluetooth Communication-------------\n")
 context = zmq.Context()
 BluetoothZMQ = context.socket(zmq.SUB)
 BluetoothZMQ.connect("tcp://localhost:5558")
@@ -16,28 +64,28 @@ BluetoothZMQ.connect("tcp://localhost:5558")
 filter = "[BLUE]"
 filter = filter.decode('ascii')
 BluetoothZMQ.setsockopt_string(zmq.SUBSCRIBE, filter)
-
-if sys.version < '3':
-    input = raw_input
+        
+diagnostics = threading.Thread(target=ManagePrograms)
+diagnostics.daemon = True
+diagnostics.start()
 
 addr = None
 
-if len(sys.argv) < 2:
-    print("no device specified.  Searching all nearby bluetooth devices for")
-    print("the SampleServer service")
-
-else:
-    addr = sys.argv[1]
-    print("Searching for SampleServer on %s" % addr)
-
 # search for the SampleServer service
 uuid = "34B1CF4D-1069-4AD6-89B6-E161D79BE4D8"
-service_matches = find_service( uuid = uuid, address = addr )
 
-
-if len(service_matches) == 0:
-    print("couldn't find the SampleServer service =(")
-    sys.exit(0)
+# Connect to the Surface or fail and just manage programs
+TimeoutCount = 0
+while not connected:
+    service_matches = find_service( uuid = uuid, address = addr )
+    TimeoutCount += 1
+    if len(service_matches) == 0:
+        print(">Could Not Find MicroSoft Surface. Try #%i."%(TimeoutCount))
+        time.sleep(1)
+    else:
+        connected = True
+        print(">Connected To The Surface")
+    
 
 first_match = service_matches[0]
 port = first_match["port"]
@@ -53,39 +101,8 @@ sock.connect((host, port))
 print("connected.  type stuff")
 #client_sock, client_info = sock.accept()
 
-def sendSystemDiagnostics():
-    while True:
-        sendMessage("CPU;"+str(psutil.cpu_percent()))
-        sendMessage("MEM;"+str(psutil.virtual_memory().percent))
-        time.sleep(1)
-
-def sendMessage(theMessage):
-    theMessage = str(theMessage)
-    theTuple = struct.unpack("4b", struct.pack("I", len(theMessage)))
-    message = chr(theTuple[3] % 256) + chr(theTuple[2] % 256) + chr(theTuple[1] % 256) + chr(theTuple[0] % 256) + theMessage.encode('ascii')
-    print(message)
-    
-    sock.send(message)
-
-def recieveLoop():
-    while True:
-        data = sock.recv(1024)
-        if 'B:' in data:
-            command = data.split("B:")[1]
-            stringCall = call(command.split(" "))
-        print(data)
-        time.sleep(0.2)
-        
-bluetoothRecieve = threading.Thread(target=recieveLoop)
-
-bluetoothRecieve.daemon = True
-
-bluetoothRecieve.start()
-
-diagnostics = threading.Thread(target=sendSystemDiagnostics)
-
+diagnostics = threading.Thread(target=SndSytmDiag)
 diagnostics.daemon = True
-
 diagnostics.start()
 
 while True:

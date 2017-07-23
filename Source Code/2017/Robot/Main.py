@@ -1292,7 +1292,8 @@ while True:
     if PauseButton():
         paused = not paused
         StopMotors()
-        time.sleep(2)
+        resetCamBuffer()
+        time.sleep(1)
         
         if not initialPause:
             wasPaused = True
