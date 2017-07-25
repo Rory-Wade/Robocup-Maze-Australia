@@ -1310,6 +1310,7 @@ def updateBluetoothMaps(lidarArray):
 
 print("------------------Main Code----------------")
 print(">Robot Is Currently Paused")
+bluetooth.send_string("%s MES;Robot Ready!")
 while True:
     
     if PauseButton():
