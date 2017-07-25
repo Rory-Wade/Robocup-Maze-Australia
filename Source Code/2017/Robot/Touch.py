@@ -68,7 +68,7 @@ def LightUp(r,g,b):
     elif (b == 0):
         GPIO.output("P8_43",GPIO.LOW)
 
-
+UselessVariable = PauseButton()
     
 if __name__ == "__main__":
     while True:

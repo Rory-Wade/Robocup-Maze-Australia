@@ -11,9 +11,9 @@ if status == 0:
 else:
     if raw_input(">Start Bluetooth Program? (y/n)\n#") == "y":
         subprocess.call("systemctl start robotbluetooth.service", shell=True)
-
-print("> Please Wait for the program to begin")    
-time.sleep(7)
+        print("> Please Wait for the program to begin")
+        time.sleep(7)
+        
 print(">DONE\n\n\n")
 
 

@@ -1,27 +1,35 @@
+print("----------------Initialising----------------\n")
+
+print(">Beging Imports")
 import zmq
 import time
 import json
 import math
 import atexit
 from copy import copy, deepcopy
+print(">DONE\n")
 
+print(">Beging Importing Seperate Code Blocks\n")
 from Touch import *
 from Light import *
 from Victims import *
 from Accel import *
-
+print(">DONE\n")
 context = zmq.Context()
+
+print(">Creating ZMQ Sockets")
 
 lidar = context.socket(zmq.SUB)
 lidar.setsockopt(zmq.CONFLATE, 1)
 lidar.connect("tcp://localhost:5556")
 
 bluetooth = context.socket(zmq.PUB)
-bluetooth.set_hwm(7)
+bluetooth.set_hwm(10)
 bluetooth.bind("tcp://*:5558")
 
 motors = context.socket(zmq.REQ)
 motors.connect("tcp://localhost:5557")
+print(">DONE\n")
 
 integral = 0
 derivative = 0
@@ -77,6 +85,7 @@ robotZ = 1
 RAMP_UP_ANGLE = 19
 RAMP_DOWN_ANGLE = -20
 
+print(">Creating DFS Map")
 map = []
 for depth in range(0,5):
     map.append([])
@@ -84,7 +93,8 @@ for depth in range(0,5):
         map[depth].append([])
         for height in range(0,75):
             map[depth][width].append(0)
-print("COMPLETED MAP CREATION")
+print(">DONE\n")
+
 coords = [37,37]
 explored = []
 backtraceArray = [[coords[0],coords[1],robotZ]]
@@ -94,8 +104,10 @@ def exit_handler():
     StopMotors()
     
 atexit.register(exit_handler)
-
-def turn(currentAngle,toAngle,counter):
+print("--------------------------------------------\n\n\n")
+#
+#
+def turn(currentAngle,toAngle,counter,lidarArray = []):
     global paused
     stuckOnSpin = 110
     
@@ -108,11 +120,14 @@ def turn(currentAngle,toAngle,counter):
                 time.sleep(0.5)
                 
     if not paused:
-        bluetooth.send_string("%s %s" % ("[BLUE]:","CMP;%i"%int(getCurrentAngle())))
-        
+        if counter % 10 == 0:
+            lidarArray = readLidar()
+        if counter % 2 == 0:
+            checkVictims(lidarArray)
+            
         if currentAngle == None:
             time.sleep(0.05)
-            return turn(getCurrentAngle(),toAngle,(counter + 1))
+            return turn(getCurrentAngle(),toAngle,(counter + 1),lidarArray)
         
         if counter % 50 == 0:
             fixTurnOnObstacle(counter/100)
@@ -145,8 +160,10 @@ def turn(currentAngle,toAngle,counter):
             rightMotorSpeed = -((abs(abs(currentAngle - toAngle) % 360) / 180) * 90) - 20
     
             MoveMotors(leftMotorSpeed,rightMotorSpeed)
-
-        return turn(getCurrentAngle(),toAngle,(counter + 1))
+            
+        angle = getCurrentAngle()  
+        bluetooth.send_string("%s %s" % ("[BLUE]:","CMP;%i"%int(angle)))
+        return turn(angle,toAngle,(counter + 1),lidarArray)
 
 
 def PID(lidarDistanceArray):
@@ -360,8 +377,8 @@ def validateVictimDetection(sensorData,lidarData):
         
     if (sensorData[0] == 0 and lidarTiles[3] == 0) or (sensorData[0] == 1 and lidarTiles[1] == 0): #Left - Right
         
-        bluetooth.send_string("%s MES;Victim Detected")
-        print("victimDetected")
+        bluetooth.send_string("%s VIC;Victim Detected")
+        print(">victimDetected")
         
         if nextTileDir:
             distance = lidarData[0]
@@ -376,9 +393,14 @@ def validateVictimDetection(sensorData,lidarData):
                 time.sleep(1)
                 dropRescueKit(True,sensorData[1],sensorData[0])
             else:
-                print("Next Tile was equal to None!")
+                print(">Next Tile was equal to None!")
+                
+                if victimOn(True,True):
+                    StopMotors()
+                    time.sleep(1)
+                    dropRescueKit(True,sensorData[1],sensorData[0])
     else:
-        print("Detected possible victim but it didnt work out")
+        print(">Detected possible victim but it didnt work out")
         return 0
 
 def MoveMotors(Linput,Rinput):
@@ -1120,6 +1142,7 @@ def victimOn(leftSide,nextTile):
 
 def blackTile():
     print("BLACK TILE")
+    bluetooth.send_string("%s LIT;BLACK")
     global coords
     global map
     global backtraceArray
@@ -1210,6 +1233,7 @@ silverTileZ = deepcopy(robotZ)
 
 def silverTile():
     print("SILVER TILE")
+    bluetooth.send_string("%s LIT;SILVER")
     global backtraceArray
     global silverBacktraceArray
     
@@ -1283,10 +1307,9 @@ def updateBluetoothMaps(lidarArray):
     bluetooth.send_string("%s CRD;%i,%i" % ("[BLUE]:",coords[1],74-coords[0]))
     bluetooth.send_string("%s BTA;%s" % ("[BLUE]:", json.dumps(backtraceArray, ensure_ascii=True)))
     bluetooth.send_string("%s MAP;%s" % ("[BLUE]:",stringMap))
-    
 
-print("Main Code Ready...")
-
+print("------------------Main Code----------------")
+print(">Robot Is Currently Paused")
 while True:
     
     if PauseButton():
@@ -1354,26 +1377,25 @@ while True:
             #             print(victimOn(False,False))
 
             if tileColour() == 1:
-                print("silver Tile")
+                print(">silver Tile")
                 silverTile()
                 
             if tileColour() == 0:
-                print("Black Tile")
+                print(">Black Tile")
                 blackTile()
                 MoveBackFromBlack(lidarArray)
                 lidarArray = readLidar()
             
             directionToGo = relativePositionCode(validTiles(lidarArray))
             lastDirection = directionToGo
-            
-            print("----LIDAR MEASUREMENTS REL----")
-            print("  FORWARD, RIGHT, BACKWARDS, LEFT")
+            print("----------LIDAR MEASUREMENTS REL-----------\n")
+            print("-FORWARD-----RIGHT------BACKWARDS-----LEFT-")
             print(lidarArray[0],lidarArray[9],lidarArray[18],lidarArray[27])
-            print("-------------Tile-------------")
+            print("-------------------Tile--------------------")
             print(validTiles(lidarArray))
-            print("----------Direction-----------")
+            print("-----------------Direction-----------------")
             print(directionToGo)
-            print("------------------------------")
+            print("-------------------------------------------")
             
             if directionToGo is not None and directionToGo >= 0:
                 moveDirection(directionToGo)
@@ -1381,23 +1403,18 @@ while True:
                 paused = True
                 
             updateBluetoothMaps(lidarArray)
-            print("-------------------------------------------")
+                
+            print("--------------------------------------------")
+            
     else:
         StopMotors()
         
         if TouchSensors()[0] and TouchSensors()[1]:
             
             bluetooth.send_string("%s MES;RESETING IMU NOW")
-            print("RESETING IMU NOW")
+            print(">RESETING IMU NOW")
             resetIMU()
             bluetooth.send_string("%s MES;RESETING IMU DONE")
-            print("RESETING IMU DONE")
-
-'''
-while True:
-    print("Getting Lidar Data and finishing turn")
-    print(validTiles(readLidar()))
-    finishTurn(readLidar())
-    print("Done")
-    time.sleep(3)
-'''
+            print(">RESETING IMU DONE")
+        elif TouchSensors()[2] and TouchSensors()[1]:
+            flashLEDs(3)

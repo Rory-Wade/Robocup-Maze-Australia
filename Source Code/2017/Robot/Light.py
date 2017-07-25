@@ -11,6 +11,8 @@ while not initialised:
         print(e)
         print("Re-Initialise right light sensors...")
 
+print(">Left Light Sensor Status: Good")
+
 initialised = False
 while not initialised:
     try:
@@ -21,10 +23,11 @@ while not initialised:
         print(e)
         print("Re-Initialise left light sensors...")
         
+print(">Right Light Sensor Status: Good \n")        
 LOWER_BOUND_WHITE = 300
 HIGHER_BOUND_BLACK = 100
 
-print("Light Sensor Active: Good \n")
+
 
 def tileColour():
     Rr, Rg, Rb, Rc = LightSensorRight.get_raw_data()

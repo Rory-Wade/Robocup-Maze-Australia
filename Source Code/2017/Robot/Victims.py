@@ -144,7 +144,33 @@ def dropRescueKit(drop,amount,side):
 def resetCamBuffer():
     LeftCam.reset_input_buffer()
     RightCam.reset_input_buffer()
-    
+
+def flashLEDs(side):
+    if side == 0:
+        LeftCam.write("D2\n")
+        LeftCam.write("D2\n")
+        LeftCam.write("D2\n")
+        time.sleep(3.3)
+        LeftCam.reset_input_buffer()
+        
+    elif side == 1:
+        RightCam.write("D2\n")
+        RightCam.write("D2\n")
+        RightCam.write("D2\n")
+        time.sleep(3.3)
+        RightCam.reset_input_buffer()
+    else:
+        LeftCam.write("D2\n")
+        RightCam.write("D2\n")
+
+        LeftCam.write("D2\n")
+        RightCam.write("D2\n")
+        
+        LeftCam.write("D2\n")
+        RightCam.write("D2\n")
+        
+        time.sleep(3.3)
+        resetCamBuffer()
 if __name__ == "__main__":    
     while True:
         print(readHeat(0))
