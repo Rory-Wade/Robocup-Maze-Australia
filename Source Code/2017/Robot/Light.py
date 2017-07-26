@@ -24,7 +24,7 @@ while not initialised:
         print("Re-Initialise left light sensors...")
         
 print(">Right Light Sensor Status: Good \n")        
-LOWER_BOUND_WHITE = 300
+LOWER_BOUND_WHITE = 245
 HIGHER_BOUND_BLACK = 100
 
 
@@ -77,10 +77,32 @@ Luminosity: 102 lux
 
 
 '''
-
+#white
+'''
+[349, 367]
+[346, 374]
+[352, 321]
+[325, 354]
+[343, 387]
+[342, 364]
+[351, 366]
+[328, 344]
+[345, 352]
+[342, 401]
+[366, 374]
+'''
+#silver
+'''[167, 165]
+[166, 162]
+[192, 156]
+[176, 170]
+[193, 175]
+[159, 161]
+[177, 161]
+[170, 158]
+'''
 if __name__ == "__main__":
     while True:
         
-        print(tileColour())
         print(valueColour())
         time.sleep(1)

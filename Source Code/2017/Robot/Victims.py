@@ -46,7 +46,7 @@ RightCam = serial.Serial(
 RightHeat =  MLX90614(address=0x5b)
 LeftHeat = MLX90614(address=0x5a)
 
-victimHeat = 26
+victimHeat = 28.5
 MaxVictimHeat = 70
 
 #char return
@@ -69,6 +69,7 @@ def readHeat(side):
         heat = RightHeat
         
     if heat.get_obj_temp() > victimHeat and heat.get_obj_temp() < MaxVictimHeat:
+        print(heat.get_obj_temp())
         return [side,2]
     return [side,0]
     

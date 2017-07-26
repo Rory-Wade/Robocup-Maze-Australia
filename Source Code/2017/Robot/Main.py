@@ -1,5 +1,8 @@
 print("----------------Initialising----------------\n")
-
+#valid ramp
+#flash on boot
+#Valid tile movement - (Time?)
+#crash button Combo
 print(">Beging Imports")
 import zmq
 import time
@@ -14,6 +17,7 @@ from Touch import *
 from Light import *
 from Victims import *
 from Accel import *
+#-30 UP || 20 DOWN
 print(">DONE\n")
 context = zmq.Context()
 
@@ -51,8 +55,12 @@ currentFacingDirection = 0
 global currentFacingDirectionLast
 currentFacingDirectionLast = 0
 
-startBaseMotorSpeed = 40
+startBaseMotorSpeed = 35
+FarBaseMotorSpeed = 20
 TilePlacementThresh = 10
+
+DirectionChange = 0
+lastTileMovementDir = 0
 
 global baseMotorSpeed
 baseMotorSpeed = startBaseMotorSpeed
@@ -82,8 +90,8 @@ silverBacktraceArray = []
 
 robotZ = 1
 
-RAMP_UP_ANGLE = 19
-RAMP_DOWN_ANGLE = -20
+RAMP_UP_ANGLE = 18.5
+RAMP_DOWN_ANGLE = -18.5
 
 print(">Creating DFS Map")
 map = []
@@ -318,7 +326,7 @@ def validTiles(LidarData):
     minDirectLength = 100
     for i in range(4):
         if i == 0:
-            if LidarData[i * 9] > 230 and LidarData[i * 9 + 3] < 250 and LidarData[33] < 250:
+            if LidarData[i * 9] > 230 and LidarData[i * 9 + 3] < 250 and LidarData[33] < 250 :
                 returnArray.append(0)  
             else:
                 returnArray.append(int(LidarData[i * 9] / tileSize))
@@ -357,8 +365,8 @@ def readLidar():
 
             
 def checkVictims(lidarTiles):
-    validateVictimDetection(readCamera(0,LeftCam),lidarTiles)
-    validateVictimDetection(readCamera(1,RightCam),lidarTiles)
+    #validateVictimDetection(readCamera(0,LeftCam),lidarTiles)
+    #validateVictimDetection(readCamera(1,RightCam),lidarTiles)
     validateVictimDetection(readHeat(0),lidarTiles)
     validateVictimDetection(readHeat(1),lidarTiles)
 
@@ -386,19 +394,19 @@ def validateVictimDetection(sensorData,lidarData):
             distance = lidarData[18]
             
         if nextTile != None:
-            lastTile = abs(distance - nextTile) > (tileSize / 2)
+            HalfWay = abs(distance - nextTile) > (tileSize / 2)
     
-            if victimOn(True,lastTile):
+            if victimOn(True,HalfWay):
                 StopMotors()
                 time.sleep(1)
                 dropRescueKit(True,sensorData[1],sensorData[0])
-            else:
-                print(">Next Tile was equal to None!")
-                
-                if victimOn(True,True):
-                    StopMotors()
-                    time.sleep(1)
-                    dropRescueKit(True,sensorData[1],sensorData[0])
+        else:
+            print(">Next Tile was equal to None!")
+            
+            if victimOn(True,True):
+                StopMotors()
+                time.sleep(1)
+                dropRescueKit(True,sensorData[1],sensorData[0])
     else:
         print(">Detected possible victim but it didnt work out")
         return 0
@@ -531,9 +539,11 @@ def fixForwardWithSideObstacle(side):
         time.sleep(0.4)
         MoveMotors(40, 30)
     else:
-        MoveMotors(-30, -50)
-        time.sleep(0.6)
-        MoveMotors(30, 50)
+        MoveMotors(-10, -60)
+        time.sleep(0.4)
+        MoveMotors(-60, -10)
+        time.sleep(0.4)
+        MoveMotors(30, 40)
 
     time.sleep(0.8)
     MoveMotors(0, 0)
@@ -594,6 +604,8 @@ def numberFitsEnvelope(front, back, envelope):
     global nextTileDir
     global firstMove
     global robotWasOnRamp
+    global DirectionChange
+    global lastTileMovementDir
     
     distance = 0
     TileMoved = False
@@ -618,42 +630,88 @@ def numberFitsEnvelope(front, back, envelope):
         else:        
             if nextTileDir and front > 0:
                 distance = front
-                
+                #baseMotorSpeed = (int(distance) - nextTile) / 5
+                if distance < 800:
+                    if (int(distance) - nextTile) > TileFineMovement:
+                        baseMotorSpeed = startBaseMotorSpeed
+                    else:
+                        baseMotorSpeed = startBaseMotorSpeed / 2
+                else:
+                    baseMotorSpeed = FarBaseMotorSpeed
+                    
+                '''
                 if (int(distance) - nextTile) > TileFineMovement:
                     baseMotorSpeed = startBaseMotorSpeed
-                # elif (int(distance) - nextTile) < -TileFineMovement:
-                #     baseMotorSpeed = -startBaseMotorSpeed / 2
-                else:
-                    baseMotorSpeed = startBaseMotorSpeed / speedDivider
                     
-                TileMoved = abs(distance - nextTile) < (tileSize / envelope)
+                    if lastTileMovementDir == 1:
+                        lastTileMovementDir = 0
+                        DirectionChange += 1
+                elif (int(distance) - nextTile) < -TileFineMovement / 2:
+                    
+                    baseMotorSpeed = -startBaseMotorSpeed / 2
+                    
+                    if lastTileMovementDir == 1:
+                        lastTileMovementDir = 0
+                        DirectionChange += 1
+                else:
+                     baseMotorSpeed = startBaseMotorSpeed / 2
+                     
+                     if lastTileMovementDir == 0:
+                        lastTileMovementDir = 1
+                        DirectionChange += 1
+                '''  
+                TileMoved = distance - nextTile < (tileSize / envelope)
                 
             
             elif back > 0:
                 distance = back
-                #baseMotorSpeed = -(int(distance) - nextTile) / 4
-                
+                if distance < 800:
+                    if -(int(distance) - nextTile) > TileFineMovement:
+                        baseMotorSpeed = startBaseMotorSpeed
+                    else:
+                        baseMotorSpeed = startBaseMotorSpeed / 2
+                else:
+                    baseMotorSpeed = FarBaseMotorSpeed
+                    
+                    
+                '''
                 if -(int(distance) - nextTile) > TileFineMovement:
                     baseMotorSpeed = startBaseMotorSpeed
-                # elif -(int(distance) - nextTile) < -TileFineMovement:
-                #     baseMotorSpeed = -startBaseMotorSpeed / 2
-                else:
-                    baseMotorSpeed = startBaseMotorSpeed / speedDivider
                     
-                TileMoved = abs(distance - nextTile) < (tileSize / envelope)
+                    if lastTileMovementDir == 1:
+                        lastTileMovementDir = 0
+                        DirectionChange += 1
+                        
+                elif -(int(distance) - nextTile) < -TileFineMovement / 2:
+                    baseMotorSpeed = -startBaseMotorSpeed / 2
+                    
+                    if lastTileMovementDir == 0:
+                        lastTileMovementDir = 1
+                        DirectionChange += 1
+                else:
+                    baseMotorSpeed = startBaseMotorSpeed / 2
+                    
+                    if lastTileMovementDir == 1:
+                        lastTileMovementDir = 0
+                        DirectionChange += 1
+                ''' 
+                TileMoved = nextTile - distance < (tileSize / envelope)
             
             TouchSensorValues = TouchSensors()    
             lessThanTile = (front < 150 and front > 0 or TouchSensorValues[1] or TouchSensorValues[2])
     
-            if lessThanTile or TileMoved or nextTile < 0 or firstMove: 
+            if lessThanTile or TileMoved or nextTile < 0 or firstMove:
+                DirectionChange = 0
                 firstMove = False
                 nextTile = None
                 nextTileDir = None
                 return True
                 
     elif(robotWasOnRamp == True and not robotOnRamp):
+        MoveMotors(baseMotorSpeed/2,baseMotorSpeed/2)
+        time.sleep(1)
         
-        nextTile = (int(front / tileSize) + 1) * tileSize - 185
+        nextTile = (int(front / tileSize)) * tileSize
         
         print("OKAY POSITION IN TILE COMMENCE")
         print(nextTile)
@@ -1079,11 +1137,25 @@ def returnTileAtDeltaDirection(distance,direction,basecoords):
 #5 means the reverse, there is heat on the upper side of the axis
 #6 means heat has been seen on both sides of the wall
 
+lastDrop = [0,0]
+
 def victimOn(leftSide,nextTile):
+    
+    global lastDrop
+    
+    print("VictimOn code runs")
+    
+    if pointDelta(coords, lastDrop) <= 2:
+        return False
+    
     if leftSide:
         #VICTIM is on the LEFT side of the robot
         direction = (currentFacingDirection - 1) % 4
         wallCoord = []
+        
+        if map[robotZ][coords[0]][coords[1]] == 1:
+            return False
+        
         if nextTile:
             wallCoord = returnTileAtDeltaDirection(1,direction,coords)
         else:
@@ -1091,25 +1163,32 @@ def victimOn(leftSide,nextTile):
         if direction == 1 or direction == 0:
             #DEAL WITH MOVING POSITIVE CASES
             if map[robotZ][wallCoord[0]][wallCoord[1]] == 9 or map[robotZ][wallCoord[0]][wallCoord[1]] == 0:
-                print("TRUE BOIIIII")
+                print("Robot Should Drop!")
                 map[robotZ][wallCoord[0]][wallCoord[1]] = 5
+                lastDrop = deepcopy(coords)
                 return True
             elif map[robotZ][wallCoord[0]][wallCoord[1]] == 4:
-                print("TRUE BOIIIII")
+                print("Robot Should Drop!")
                 map[robotZ][wallCoord[0]][wallCoord[1]] = 6
+                lastDrop = deepcopy(coords)
                 return True
         else:
             #DEAL WITH MOVING NEGATIVE CASES
             if map[robotZ][wallCoord[0]][wallCoord[1]] == 9 or map[robotZ][wallCoord[0]][wallCoord[1]] == 0:
-                print("TRUE BOIIIII")
+                print("Robot Should Drop!")
                 map[robotZ][wallCoord[0]][wallCoord[1]] = 4
+                lastDrop = deepcopy(coords)
                 return True
             elif map[robotZ][wallCoord[0]][wallCoord[1]] == 5:
-                print("TRUE BOIIIII")
+                print("Robot Should Drop!")
                 map[robotZ][wallCoord[0]][wallCoord[1]] = 6
+                lastDrop = deepcopy(coords)
                 return True
     else:
         #VICTIM is on the RIGHT side of the robot
+        if map[robotZ][coords[0]][coords[1]] == 1:
+            return False
+        
         direction = (currentFacingDirection + 1) % 4
         wallCoord = []
         if nextTile:
@@ -1120,23 +1199,27 @@ def victimOn(leftSide,nextTile):
             #DEAL WITH MOVING POSITIVE CASES
             if map[robotZ][wallCoord[0]][wallCoord[1]] == 9 or map[robotZ][wallCoord[0]][wallCoord[1]] == 0:
                 map[robotZ][wallCoord[0]][wallCoord[1]] = 5
-                print("TRUE BOIIIII")
+                print("Robot Should Drop!")
+                lastDrop = deepcopy(coords)
                 return True
             elif map[robotZ][wallCoord[0]][wallCoord[1]] == 4:
                 map[robotZ][wallCoord[0]][wallCoord[1]] = 6
-                print("TRUE BOIIIII")
+                print("Robot Should Drop!")
+                lastDrop = deepcopy(coords)
                 return True
         else:
             #DEAL WITH MOVING NEGATIVE CASES
             if map[robotZ][wallCoord[0]][wallCoord[1]] == 9 or map[robotZ][wallCoord[0]][wallCoord[1]] == 0:
                 map[robotZ][wallCoord[0]][wallCoord[1]] = 4
-                print("TRUE BOIIIII")
+                print("Robot Should Drop!")
+                lastDrop = deepcopy(coords)
                 return True
             elif map[robotZ][wallCoord[0]][wallCoord[1]] == 5:
                 map[robotZ][wallCoord[0]][wallCoord[1]] = 6
-                print("TRUE BOIIIII")
+                print("Robot Should Drop!")
+                lastDrop = deepcopy(coords)
                 return True
-    print("FALSE BOIIIII")
+    print("Robot Should NOT Drop!")
     return False
         
 
@@ -1199,15 +1282,15 @@ def MoveBackFromBlack(lidarArray):
         
         if nextTileDir and front > 0:
             distance = front
-            baseMotorSpeed = (int(distance) - nextTile) / 4
+            baseMotorSpeed = startBaseMotorSpeed / -2
             TileMoved = abs(distance - nextTile) < (tileSize / envelope)
         
         elif back > 0:
             distance = back
-            baseMotorSpeed = -(int(distance) - nextTile) / 4
+            baseMotorSpeed = startBaseMotorSpeed / -2
             TileMoved = abs(distance - nextTile) < (tileSize / envelope)
     
-        lessThanTile = (back < 140 and back > 0 or TouchSensors()[2] or TouchSensors()[3])
+        lessThanTile = (back < 140 and back > 0)
 
         if (lessThanTile or TileMoved) or nextTile < 0 or firstMove: 
             StopMotors()
@@ -1348,34 +1431,20 @@ while True:
                 checkVictims(lidarArray)
                 robotOnRamp = False
             else:
+                print(">Ramp PID")
                 RampPID(lidarArray,IMUAngle)
                 robotOnRamp = True
                 robotWasOnRamp = True
         else:
 
             StopMotors()
+            time.sleep(0.1)
             lidarArray = readLidar()
 
             if robotRampDirection != None:
                 if finishTurn(lidarArray):
                     pass
                 robotRampDirection = None  
-                
-            # response = raw_input("Heat?")
-            # if response == "y":
-            #     response = raw_input("Left Side?")
-            #     if response == "y":
-            #         response = raw_input("NewTile?")
-            #         if response == "y":
-            #             print(victimOn(True,True))
-            #         else:
-            #             print(victimOn(True,False))
-            #     else:
-            #         response = raw_input("NewTile?")
-            #         if response == "y":
-            #             print(victimOn(False,True))
-            #         else:
-            #             print(victimOn(False,False))
 
             if tileColour() == 1:
                 print(">silver Tile")
@@ -1389,6 +1458,7 @@ while True:
             
             directionToGo = relativePositionCode(validTiles(lidarArray))
             lastDirection = directionToGo
+            
             print("----------LIDAR MEASUREMENTS REL-----------\n")
             print("-FORWARD-----RIGHT------BACKWARDS-----LEFT-")
             print(lidarArray[0],lidarArray[9],lidarArray[18],lidarArray[27])
@@ -1412,10 +1482,10 @@ while True:
         
         if TouchSensors()[0] and TouchSensors()[1]:
             
-            bluetooth.send_string("%s MES;RESETING IMU NOW")
+            bluetooth.send_string("MES;RESETING IMU NOW")
             print(">RESETING IMU NOW")
             resetIMU()
-            bluetooth.send_string("%s MES;RESETING IMU DONE")
+            bluetooth.send_string("MES;RESETING IMU DONE")
             print(">RESETING IMU DONE")
         elif TouchSensors()[2] and TouchSensors()[1]:
             flashLEDs(3)

@@ -101,7 +101,7 @@ def getCurrentAngle():
 def getCurrentPitch():
     try:
         heading, roll, pitch = bno.read_euler()
-        return pitch
+        return ((roll * -1) - 4)
         
     except IndexError:
         print("\nBNO READ ERROR PITCH- PASSING NONE! ERROR-> {}".format(IndexError))
@@ -119,7 +119,8 @@ def resetIMU():
     bno.set_calibration(setCalibrationValue)
     
 
-
+#27 - UP
+#-18 - Down
 if __name__ == "__main__":
     while True:
         # Read the Euler angles for heading, roll, pitch (all in degrees).
@@ -127,13 +128,13 @@ if __name__ == "__main__":
         # Read the calibration status, 0=uncalibrated and 3=fully calibrated.
         sys, gyro, accel, mag = bno.get_calibration_status()
         # Print everything out.
-        print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
-              heading, roll, pitch, sys, gyro, accel, mag))
-        print(bno.get_calibration())      
-        
+        #print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(heading, roll, pitch, sys, gyro, accel, mag))
+        #print(bno.get_calibration())
+        print((roll * -1) - 4)
+        '''
         response = raw_input("Reset?")
         if response == "y":
             resetIMU()
-            
+        '''    
         time.sleep(1)
         

@@ -15,7 +15,7 @@ print(">Beging Bluetooth Import")
 from bluetooth import *
 print(">DONE\n")
 
-debugMode = False #Will stop the automatic restart of programs and any blutooth services active
+debugMode = True #Will stop the automatic restart of programs and any blutooth services active
 connected = False
 
 addr = "30:59:B7:0F:C6:B9"
@@ -85,7 +85,7 @@ def sendMessage(theMessage):
         theMessage = str(theMessage)
         theTuple = struct.unpack("4b", struct.pack("I", len(theMessage)))
         message = chr(theTuple[3] % 256) + chr(theTuple[2] % 256) + chr(theTuple[1] % 256) + chr(theTuple[0] % 256) + theMessage.encode('ascii')
-        #print(message)
+        print(message)
         
         sock.send(message)
     except Exception, e:
@@ -142,8 +142,10 @@ diagnostics.daemon = True
 diagnostics.start()
 
 while True:
+    global connected
+    
     if connected:
-        sendMessage(BluetoothZMQ.recv_string().split(":"))
+        sendMessage(BluetoothZMQ.recv_string().split(":")[1])
     time.sleep(0.1)
     
 
