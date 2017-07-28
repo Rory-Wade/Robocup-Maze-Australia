@@ -75,7 +75,7 @@ print("DONE\n")
 
 print("-------------------------------------\n")
 clearTerminal()
-
+'''
 print("-------------TOUCH TESTS-------------\n")
 print("-->Testing The Pause Button")
 print(">Please Push The Pause Button")
@@ -140,7 +140,7 @@ print("GOOD\n")
 print("-------------------------------------\n")
 clearTerminal()
 
-
+'''
 print("-------------VICTM TESTS-------------\n")
 print("-->Testing The Left Drop Mechanism and Cams")
 

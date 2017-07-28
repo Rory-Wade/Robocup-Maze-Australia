@@ -40,7 +40,7 @@ def tileColour():
         
     if(Leftlux > LOWER_BOUND_WHITE and Rightlux > LOWER_BOUND_WHITE):
         return None
-    elif(Leftlux < HIGHER_BOUND_BLACK and Rightlux < HIGHER_BOUND_BLACK):
+    elif(Leftlux < HIGHER_BOUND_BLACK or Rightlux < HIGHER_BOUND_BLACK):
         return 0 #black
     
     return 1 # else its silver

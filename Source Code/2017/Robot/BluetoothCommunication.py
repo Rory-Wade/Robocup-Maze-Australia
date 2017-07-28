@@ -15,7 +15,7 @@ print(">Beging Bluetooth Import")
 from bluetooth import *
 print(">DONE\n")
 
-debugMode = True #Will stop the automatic restart of programs and any blutooth services active
+debugMode = False  #Will stop the automatic restart of programs and any blutooth services active
 connected = False
 
 addr = "30:59:B7:0F:C6:B9"

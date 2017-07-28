@@ -9,6 +9,7 @@ import time
 import json
 import math
 import atexit
+import subprocess
 from copy import copy, deepcopy
 print(">DONE\n")
 
@@ -55,12 +56,14 @@ currentFacingDirection = 0
 global currentFacingDirectionLast
 currentFacingDirectionLast = 0
 
-startBaseMotorSpeed = 35
+startBaseMotorSpeed = 37
 FarBaseMotorSpeed = 20
 TilePlacementThresh = 10
 
 DirectionChange = 0
 lastTileMovementDir = 0
+
+TileTouchSensorRecorrections = 0
 
 global baseMotorSpeed
 baseMotorSpeed = startBaseMotorSpeed
@@ -88,10 +91,13 @@ lastSilverTileCoords = []
 lastSilverTileDirection = 0
 silverBacktraceArray = []
 
+TicksOnRamp = 0
 robotZ = 1
 
+startTileTime = 0
+
 RAMP_UP_ANGLE = 18.5
-RAMP_DOWN_ANGLE = -18.5
+RAMP_DOWN_ANGLE = -18
 
 print(">Creating DFS Map")
 map = []
@@ -130,8 +136,8 @@ def turn(currentAngle,toAngle,counter,lidarArray = []):
     if not paused:
         if counter % 10 == 0:
             lidarArray = readLidar()
-        if counter % 2 == 0:
-            checkVictims(lidarArray)
+        
+        checkVictims(lidarArray)
             
         if currentAngle == None:
             time.sleep(0.05)
@@ -180,7 +186,7 @@ def PID(lidarDistanceArray):
     global derivative
     global last_error
     global baseMotorSpeed
-    
+    global TileTouchSensorRecorrections
     KP = 0.5
     KI = 0.04
     KD = 0.45
@@ -227,20 +233,20 @@ def PID(lidarDistanceArray):
             differnece = (angle - (90 * currentFacingDirection))
             
         if lidarDistanceArray[0] > 200: 
-            TouchSensorValues = TouchSensors()
             if lidarDistanceArray[2] < 200:
-                distDiffernece = 30
+                distDiffernece = 40
                 print("NOT A GOOD WALL 1")
             elif lidarDistanceArray[33] < 200:
-                distDiffernece = -30
+                distDiffernece = -40
                 print("NOT A GOOD WALL 2")
-            elif TouchSensorValues[0]:
-                fixForwardWithSideObstacle(0)    
-            elif TouchSensorValues[3]:
-                fixForwardWithSideObstacle(1)
+        TouchSensorValues = TouchSensors()
+        if TouchSensorValues[0]:
+            fixForwardWithSideObstacle(0)
+            TileTouchSensorRecorrections += 1
+        elif TouchSensorValues[3]:
+            fixForwardWithSideObstacle(1)
+            TileTouchSensorRecorrections += 1
                 
-       
-
     proportion = (differnece + distDiffernece / 1)
     
     integral  += proportion
@@ -365,8 +371,8 @@ def readLidar():
 
             
 def checkVictims(lidarTiles):
-    #validateVictimDetection(readCamera(0,LeftCam),lidarTiles)
-    #validateVictimDetection(readCamera(1,RightCam),lidarTiles)
+    validateVictimDetection(readCamera(0,LeftCam),lidarTiles)
+    validateVictimDetection(readCamera(1,RightCam),lidarTiles)
     validateVictimDetection(readHeat(0),lidarTiles)
     validateVictimDetection(readHeat(1),lidarTiles)
 
@@ -385,7 +391,7 @@ def validateVictimDetection(sensorData,lidarData):
         
     if (sensorData[0] == 0 and lidarTiles[3] == 0) or (sensorData[0] == 1 and lidarTiles[1] == 0): #Left - Right
         
-        bluetooth.send_string("%s VIC;Victim Detected")
+        bluetooth.send_string("[BLUE]:VIC;Victim Detected")
         print(">victimDetected")
         
         if nextTileDir:
@@ -396,14 +402,14 @@ def validateVictimDetection(sensorData,lidarData):
         if nextTile != None:
             HalfWay = abs(distance - nextTile) > (tileSize / 2)
     
-            if victimOn(True,HalfWay):
+            if victimOn(True,False):
                 StopMotors()
                 time.sleep(1)
                 dropRescueKit(True,sensorData[1],sensorData[0])
         else:
             print(">Next Tile was equal to None!")
             
-            if victimOn(True,True):
+            if victimOn(True,False):
                 StopMotors()
                 time.sleep(1)
                 dropRescueKit(True,sensorData[1],sensorData[0])
@@ -452,6 +458,7 @@ def finishTurn(lidarDistanceArray):
     turnTileSize = 220
     obstacleThresh = 10
     lidarDistanceArray = readLidar()
+    LoopCountFinTurn = 0
     
     if(lidarDistanceArray[8] < turnTileSize and lidarDistanceArray[8] > 0 and lidarDistanceArray[10] < turnTileSize and lidarDistanceArray[10] > 0 and abs((lidarDistanceArray[8] + lidarDistanceArray[10]) / 2 - lidarDistanceArray[9]) < obstacleThresh):
 
@@ -460,7 +467,7 @@ def finishTurn(lidarDistanceArray):
             Front = math.cos(angle) * lidarDistanceArray[9 - offset]
             Back = math.cos(angle) * lidarDistanceArray[9 + offset]
             
-            while(abs(Back - Front) > 1 and not paused):
+            while(abs(Back - Front) > 1 and not paused and LoopCountFinTurn < 20):
 
                 if PauseButton():
                     paused = not paused
@@ -482,20 +489,21 @@ def finishTurn(lidarDistanceArray):
                 
                 turn = KP*proportion + KI*integral + KD*derivative
                 
-                if(abs(turn) < 7 and abs(turn) > 0):
-                    turn = (turn / abs(turn)) * 7
-                elif(abs(turn) < 7):
-                    turn = 7
+                if(abs(turn) < 10 and abs(turn) > 0):
+                    turn = (turn / abs(turn)) * 10
+                elif(abs(turn) < 10):
+                    turn = 10
                     
                 MoveMotors(-turn, turn)
-            
+                LoopCountFinTurn += 1
+                
     elif(lidarDistanceArray[26] < turnTileSize and lidarDistanceArray[26] > 0 and lidarDistanceArray[28] < turnTileSize and lidarDistanceArray[28] > 0 and abs((lidarDistanceArray[26] + lidarDistanceArray[28]) / 2 - lidarDistanceArray[27]) < obstacleThresh):
         for i in range(2):  
             lidarDistanceArray = readLidar()
             Front = math.cos(angle) * lidarDistanceArray[27 - offset]
             Back = math.cos(angle) * lidarDistanceArray[27 + offset]
             
-            while(abs(Back - Front) > 1 and not paused):
+            while(abs(Back - Front) > 1 and not paused and LoopCountFinTurn < 20):
 
                 if PauseButton():
                     paused = not paused
@@ -517,17 +525,18 @@ def finishTurn(lidarDistanceArray):
                 
                 turn = KP*proportion + KI*integral + KD*derivative
                 
-                if(abs(turn) < 7 and abs(turn) > 0):
-                    turn = (turn / abs(turn)) * 7
-                elif(abs(turn) < 7):
-                    turn = 7
+                if(abs(turn) < 10 and abs(turn) > 0):
+                    turn = (turn / abs(turn)) * 10
+                elif(abs(turn) < 10):
+                    turn = 10
 
                 MoveMotors(-turn, turn)
-
+                LoopCountFinTurn += 1
     else:
+        LoopCountFinTurn = 0
         print("FinishTurn:No wall to use")
         return False
-        
+    LoopCountFinTurn = 0   
     StopMotors()
     return True
 
@@ -606,6 +615,7 @@ def numberFitsEnvelope(front, back, envelope):
     global robotWasOnRamp
     global DirectionChange
     global lastTileMovementDir
+    global startTileTime
     
     distance = 0
     TileMoved = False
@@ -626,7 +636,9 @@ def numberFitsEnvelope(front, back, envelope):
                 distance = back
                 nextTile = (int(distance / tileSize) + 1) * tileSize + 160
                 baseMotorSpeed = startBaseMotorSpeed
-          
+            
+            startTileTime = time.time()
+            
         else:        
             if nextTileDir and front > 0:
                 distance = front
@@ -639,30 +651,8 @@ def numberFitsEnvelope(front, back, envelope):
                 else:
                     baseMotorSpeed = FarBaseMotorSpeed
                     
-                '''
-                if (int(distance) - nextTile) > TileFineMovement:
-                    baseMotorSpeed = startBaseMotorSpeed
-                    
-                    if lastTileMovementDir == 1:
-                        lastTileMovementDir = 0
-                        DirectionChange += 1
-                elif (int(distance) - nextTile) < -TileFineMovement / 2:
-                    
-                    baseMotorSpeed = -startBaseMotorSpeed / 2
-                    
-                    if lastTileMovementDir == 1:
-                        lastTileMovementDir = 0
-                        DirectionChange += 1
-                else:
-                     baseMotorSpeed = startBaseMotorSpeed / 2
-                     
-                     if lastTileMovementDir == 0:
-                        lastTileMovementDir = 1
-                        DirectionChange += 1
-                '''  
                 TileMoved = distance - nextTile < (tileSize / envelope)
                 
-            
             elif back > 0:
                 distance = back
                 if distance < 800:
@@ -672,36 +662,20 @@ def numberFitsEnvelope(front, back, envelope):
                         baseMotorSpeed = startBaseMotorSpeed / 2
                 else:
                     baseMotorSpeed = FarBaseMotorSpeed
-                    
-                    
-                '''
-                if -(int(distance) - nextTile) > TileFineMovement:
-                    baseMotorSpeed = startBaseMotorSpeed
-                    
-                    if lastTileMovementDir == 1:
-                        lastTileMovementDir = 0
-                        DirectionChange += 1
-                        
-                elif -(int(distance) - nextTile) < -TileFineMovement / 2:
-                    baseMotorSpeed = -startBaseMotorSpeed / 2
-                    
-                    if lastTileMovementDir == 0:
-                        lastTileMovementDir = 1
-                        DirectionChange += 1
-                else:
-                    baseMotorSpeed = startBaseMotorSpeed / 2
-                    
-                    if lastTileMovementDir == 1:
-                        lastTileMovementDir = 0
-                        DirectionChange += 1
-                ''' 
+                 
                 TileMoved = nextTile - distance < (tileSize / envelope)
             
             TouchSensorValues = TouchSensors()    
             lessThanTile = (front < 150 and front > 0 or TouchSensorValues[1] or TouchSensorValues[2])
-    
-            if lessThanTile or TileMoved or nextTile < 0 or firstMove:
+            
+            currentTime = time.time()
+            if lessThanTile or (TileMoved and (currentTime - startTileTime) > 2) or nextTile < 0 or firstMove TileTouchSensorRecorrections >= 3:
+                #print("Finished Tile Movements:")
+                #print((currentTime - startTileTime))
+                #print([lessThanTile,TileMoved,nextTile < 0])
+                startTileTime = 0
                 DirectionChange = 0
+                TicksOnRamp = 0
                 firstMove = False
                 nextTile = None
                 nextTileDir = None
@@ -709,9 +683,9 @@ def numberFitsEnvelope(front, back, envelope):
                 
     elif(robotWasOnRamp == True and not robotOnRamp):
         MoveMotors(baseMotorSpeed/2,baseMotorSpeed/2)
-        time.sleep(1)
+        time.sleep(1.8)
         
-        nextTile = (int(front / tileSize)) * tileSize
+        nextTile = (int(readLidar()[0] / tileSize) + 1) * tileSize 
         
         print("OKAY POSITION IN TILE COMMENCE")
         print(nextTile)
@@ -745,6 +719,30 @@ def positionForwardTile(front):
         time.sleep(0.1)
         
 def changeMap(up,right,down,left):
+    
+    if coords[0] + (up * 2) > len(map[robotZ]):
+        up = 0
+        print("Index out of range exception should have happened here")
+        bluetooth.send_string("[BLUE]:MES;Index out of range error should have occured! Invalidated value (up) in question.")
+    
+    if coords[0] - (down * 2) < 0:
+        down = 0
+        print("Index out of range exception should have happened here")
+        bluetooth.send_string("[BLUE]:MES;Index out of range error should have occured! Invalidated value (down) in question.")
+    
+    if coords[1] + (right * 2) > len(map[robotZ][coords[0]]):
+        right = 0
+        print("Index out of range exception should have happened here")
+        bluetooth.send_string("[BLUE]:MES;Index out of range error should have occured! Invalidated value (right) in question.")
+    
+    if coords[1] - (left * 2) < 0:
+        left = 0
+        print("Index out of range exception should have happened here")
+        bluetooth.send_string("[BLUE]:MES;Index out of range error should have occured! Invalidated value (left) in question.")
+    
+    #coords[0] - (down * 2) < 0 or coords[1] + (right * 2) > len(map[robotZ][coords[0]]) or coords[1] - (left * 2) < 0
+    
+    
     print(up, right, down, left)
     print(coords)
     for x in range(1,up * 2,2):
@@ -1225,7 +1223,7 @@ def victimOn(leftSide,nextTile):
 
 def blackTile():
     print("BLACK TILE")
-    bluetooth.send_string("%s LIT;BLACK")
+    bluetooth.send_string("[BLUE]:LIT;BLACK")
     global coords
     global map
     global backtraceArray
@@ -1252,8 +1250,10 @@ def MoveBackFromBlack(lidarArray):
     distance = 0
     TileMoved = False
     baseMotorSpeed = 20
+    nextTileDir = None
+    startTime = time.time()
     
-    if front < back and front > 150:
+    if front < back and front > 100:
         nextTileDir = True
         distance = front
         nextTile = (int(distance / tileSize) + 1) * tileSize + 160
@@ -1280,23 +1280,27 @@ def MoveBackFromBlack(lidarArray):
         front = lidarArray[0]
         back = lidarArray[18]
         
-        if nextTileDir and front > 0:
+        if nextTileDir == True and front > 0:
             distance = front
             baseMotorSpeed = startBaseMotorSpeed / -2
             TileMoved = abs(distance - nextTile) < (tileSize / envelope)
         
-        elif back > 0:
+        elif nextTileDir == False and back > 0:
             distance = back
             baseMotorSpeed = startBaseMotorSpeed / -2
             TileMoved = abs(distance - nextTile) < (tileSize / envelope)
-    
+        else:
+            MoveMotors(-startBaseMotorSpeed/2,-startBaseMotorSpeed/2)
+            time.sleep(2.5)
+            TileMoved = True
+            
         lessThanTile = (back < 140 and back > 0)
 
-        if (lessThanTile or TileMoved) or nextTile < 0 or firstMove: 
+        if (lessThanTile or TileMoved) or nextTile < 0 or firstMove or (startTime - time.time()) > 2.8: 
             StopMotors()
             movingBack = False    
         else:
-            MoveMotors(baseMotorSpeed,baseMotorSpeed)    
+            MoveMotors(-startBaseMotorSpeed/2,-startBaseMotorSpeed/2)    
     
 def setupForwardTraceArray():
     global silverBacktraceArray
@@ -1316,7 +1320,7 @@ silverTileZ = deepcopy(robotZ)
 
 def silverTile():
     print("SILVER TILE")
-    bluetooth.send_string("%s LIT;SILVER")
+    bluetooth.send_string("[BLUE]:LIT;SILVER")
     global backtraceArray
     global silverBacktraceArray
     
@@ -1325,7 +1329,7 @@ def silverTile():
     global lastSilverTileCoords
     global lastSilverTileDirection
     
-    lastSilverTileCoords = [coords[0],coords[1]]
+    lastSilverTileCoords = [coords[0],coords[1],robotZ]
     lastSilverTileDirection = int(str(lastDirection))
     silverBacktraceArray = deepcopy(backtraceArray)
     map[robotZ][coords[0]][coords[1]] = 3
@@ -1356,12 +1360,13 @@ def revertToSilverTile():
     currentFacingDirection = deepcopy(lastSilverTileDirection)
     currentFacingDirectionLast = deepcopy(lastSilverTileDirection)
     coords = [lastSilverTileCoords[0],lastSilverTileCoords[1]]
+    robotZ = lastSilverTileCoords[2]
     fta = deepcopy(forwardTraceArray)
     backtraceArray = silverBacktraceArray + fta
     print(len(fta))
     for element in reversed(fta):
         backtraceArray.append(element)
-    backtraceArray.append(coords);
+    backtraceArray.append([coords[0],coords[1],robotZ]);
     print("TRIED TO REVERT TO SILVER TILE")
     print(len(backtraceArray))
     print(backtraceArray)
@@ -1393,7 +1398,8 @@ def updateBluetoothMaps(lidarArray):
 
 print("------------------Main Code----------------")
 print(">Robot Is Currently Paused")
-bluetooth.send_string("%s MES;Robot Ready!")
+flashLEDs(3)
+bluetooth.send_string("[BLUE]:MES;Robot Ready!")
 while True:
     
     if PauseButton():
@@ -1408,9 +1414,9 @@ while True:
             
         if not paused:
             initialPause = False
-            bluetooth.send_string("%s PAU;FALSE")
+            bluetooth.send_string("[BLUE]:PAU;FALSE")
         else:
-            bluetooth.send_string("%s PAU;TRUE")
+            bluetooth.send_string("[BLUE]:PAU;TRUE")
         
         while PauseButton():
             time.sleep(0.5)
@@ -1427,20 +1433,25 @@ while True:
         if MoveForward(lidarArray,IMUAngle):
 
             if IMUAngle < RAMP_UP_ANGLE and IMUAngle > RAMP_DOWN_ANGLE:
-                PID(lidarArray)
                 checkVictims(lidarArray)
+                PID(lidarArray)
                 robotOnRamp = False
+                TicksOnRamp = 0
             else:
                 print(">Ramp PID")
                 RampPID(lidarArray,IMUAngle)
-                robotOnRamp = True
-                robotWasOnRamp = True
+                TicksOnRamp += 1
+                
+                if TicksOnRamp > 5:
+                    robotOnRamp = True
+                    robotWasOnRamp = True
         else:
 
             StopMotors()
-            time.sleep(0.1)
+            time.sleep(0.2)
             lidarArray = readLidar()
-
+            checkVictims(lidarArray)
+            
             if robotRampDirection != None:
                 if finishTurn(lidarArray):
                     pass
@@ -1455,6 +1466,10 @@ while True:
                 blackTile()
                 MoveBackFromBlack(lidarArray)
                 lidarArray = readLidar()
+            if TileTouchSensorRecorrections >= 3:
+                print(">Object Detected 3 Times Calling Black Tile")
+                blackTile()
+            TileTouchSensorRecorrections = 0
             
             directionToGo = relativePositionCode(validTiles(lidarArray))
             lastDirection = directionToGo
@@ -1479,13 +1494,17 @@ while True:
             
     else:
         StopMotors()
+        TouchSensorValuesRET = TouchSensors()
         
-        if TouchSensors()[0] and TouchSensors()[1]:
-            
-            bluetooth.send_string("MES;RESETING IMU NOW")
-            print(">RESETING IMU NOW")
+        if TouchSensorValuesRET[0] and TouchSensorValuesRET[1] and  TouchSensorValuesRET[3]:
+            subprocess.call("systemctl stop mainrobot.service", shell=True)
+        elif TouchSensorValuesRET[0] and TouchSensorValuesRET[1]:
+            flashLEDs(4)
+            bluetooth.send_string("[BLUE]:MES;RESETING IMU NOW")
+            print(">RESETING IMU... NOW")
             resetIMU()
-            bluetooth.send_string("MES;RESETING IMU DONE")
-            print(">RESETING IMU DONE")
-        elif TouchSensors()[2] and TouchSensors()[1]:
+            bluetooth.send_string("[BLUE]:MES;RESETING IMU DONE")
+            print(">RESETING IMU... DONE")
+            flashLEDs(4)
+        elif TouchSensorValuesRET[2] and TouchSensorValuesRET[1]:
             flashLEDs(3)
