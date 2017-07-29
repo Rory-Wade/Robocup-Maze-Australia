@@ -74,6 +74,6 @@ if __name__ == "__main__":
     while True:
         
         print(TouchSensors())
-        print(PauseButton())
-        time.sleep(0.1)
+        #print(PauseButton())
+        time.sleep(1)
 

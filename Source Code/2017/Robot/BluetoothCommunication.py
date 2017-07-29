@@ -15,6 +15,8 @@ print(">Beging Bluetooth Import")
 from bluetooth import *
 print(">DONE\n")
 
+#superteams
+'''
 debugMode = False  #Will stop the automatic restart of programs and any blutooth services active
 connected = False
 
@@ -147,8 +149,33 @@ while True:
     if connected:
         sendMessage(BluetoothZMQ.recv_string().split(":")[1])
     time.sleep(0.1)
-    
+'''
 
+def sendMessage(messageToSend):
+    server_sock=BluetoothSocket( RFCOMM )
+    server_sock.bind(("",PORT_ANY))
+    server_sock.listen(1)
+
+    port = server_sock.getsockname()[1]
+
+    uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+
+    advertise_service( server_sock, messageToSend,
+                   service_id = uuid,
+                   service_classes = [ uuid, SERIAL_PORT_CLASS ],
+                   profiles = [ SERIAL_PORT_PROFILE ], 
+                    )
+
+print("------------Bluetooth Communication-------------\n")
+context = zmq.Context()
+BluetoothZMQ = context.socket(zmq.SUB)
+BluetoothZMQ.connect("tcp://localhost:5558")
+
+filter = "[SUPER]"
+filter = filter.decode('ascii')
+BluetoothZMQ.setsockopt_string(zmq.SUBSCRIBE, filter)
+    
+sendMessage(BluetoothZMQ.recv_string())
 
 
 '''

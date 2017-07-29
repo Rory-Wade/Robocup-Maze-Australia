@@ -13,7 +13,7 @@ import subprocess
 from copy import copy, deepcopy
 print(">DONE\n")
 
-print(">Beging Importing Seperate Code Blocks\n")
+print(">Begining Importing Seperate Code Blocks\n")
 from Touch import *
 from Light import *
 from Victims import *
@@ -134,7 +134,7 @@ def turn(currentAngle,toAngle,counter,lidarArray = []):
                 time.sleep(0.5)
                 
     if not paused:
-        if counter % 10 == 0:
+        if counter % 2 == 0:
             lidarArray = readLidar()
         
         checkVictims(lidarArray)
@@ -144,7 +144,7 @@ def turn(currentAngle,toAngle,counter,lidarArray = []):
             return turn(getCurrentAngle(),toAngle,(counter + 1),lidarArray)
         
         if counter % 50 == 0:
-            fixTurnOnObstacle(counter/100)
+            fixTurnOnObstacle(counter / 100)
         movingForward = False
         
         if abs((currentAngle - toAngle) % 360) < 3:
@@ -178,7 +178,6 @@ def turn(currentAngle,toAngle,counter,lidarArray = []):
         angle = getCurrentAngle()  
         bluetooth.send_string("%s %s" % ("[BLUE]:","CMP;%i"%int(angle)))
         return turn(angle,toAngle,(counter + 1),lidarArray)
-
 
 def PID(lidarDistanceArray):
     global proportion
@@ -239,13 +238,16 @@ def PID(lidarDistanceArray):
             elif lidarDistanceArray[33] < 200:
                 distDiffernece = -40
                 print("NOT A GOOD WALL 2")
-        TouchSensorValues = TouchSensors()
-        if TouchSensorValues[0]:
-            fixForwardWithSideObstacle(0)
-            TileTouchSensorRecorrections += 1
-        elif TouchSensorValues[3]:
-            fixForwardWithSideObstacle(1)
-            TileTouchSensorRecorrections += 1
+               
+    TouchSensorValues = TouchSensors()
+    if TouchSensorValues[0]:
+        print("Touch Sensor Right Pressed")
+        fixForwardWithSideObstacle(0)
+        TileTouchSensorRecorrections += 1
+    elif TouchSensorValues[3]:
+        print("Touch Sensor Right Pressed")
+        fixForwardWithSideObstacle(1)
+        TileTouchSensorRecorrections += 1
                 
     proportion = (differnece + distDiffernece / 1)
     
@@ -348,18 +350,30 @@ def moveDirection(direction):
     global currentFacingDirectionLast
     
     if currentFacingDirectionLast != direction:
-        if direction == 0:
-            print("TURN NORTH")
-            turn(getCurrentAngle(),0,0)
-        elif direction == 1:
-            print("TURN EAST")
-            turn(getCurrentAngle(),90,0)
-        elif direction == 2:
-            print("TURN SOUTH")
-            turn(getCurrentAngle(),180,0)
-        elif direction == 3:
-            print("TURN WEST")
-            turn(getCurrentAngle(),270,0)
+        currentAngle = getCurrentAngle()
+        turns = [0, 90, 180, 270]
+        #if direction == 0:
+        #    print("TURN NORTH")
+        #    turn(currentAngle,0,0)
+        #elif direction == 1:
+        #    print("TURN EAST")
+        #    turn(currentAngle,90,0)
+        #elif direction == 2:
+        #    print("TURN SOUTH")
+        #    turn(currentAngle,180,0)
+        #elif direction == 3:
+        #    print("TURN WEST")
+        #    turn(currentAngle,270,0)
+        if abs(currentAngle - turns[direction]) > 135 and abs(currentAngle - turns[direction]) < 225:
+            dt = turns[direction] - ((turns[direction] - currentAngle) / 2)
+            turn(currentAngle, dt, 0)
+            time.sleep(0.5)
+            checkVictims(readLidar())
+            turn(currentAngle, turns[direction], 0)
+            checkVictims(readLidar())
+        else:
+            turn(currentAngle, turns[direction], 0)
+            
         finishTurn(lidarArray)
             
         currentFacingDirectionLast = currentFacingDirection
@@ -591,19 +605,30 @@ def fixTurnOnObstacle(attempt):
         MoveMotors(-100, 0)
         time.sleep(0.6)
         MoveMotors(0, 0)
-    
+
 def wentUpRamp():
     global robotZ
+    global backtracing
     map[robotZ][coords[0]][coords[1]] = 7
     backtraceArray[len(backtraceArray) - 1][2] = deepcopy(robotZ) + 1
+    #if backtracing:
+    #    robotZ -= 1
+    #else:
     robotZ += 1
-
+    
+    ramp = returnTileAtDeltaDirection(2,(currentFacingDirection + 2) % 4, coords)
+    map[robotZ][ramp[0]][ramp[1]] = 1
+    
 
 def wentDownRamp():
     global robotZ
+    global backtracing
     map[robotZ][coords[0]][coords[1]] = 7
     backtraceArray[len(backtraceArray) - 1][2] = deepcopy(robotZ) - 1
+    #if backtracing:
     robotZ -= 1
+    #else:
+    #    robotZ += 1
     ramp = returnTileAtDeltaDirection(2,(currentFacingDirection + 2) % 4, coords)
     map[robotZ][ramp[0]][ramp[1]] = 1
     
@@ -669,7 +694,7 @@ def numberFitsEnvelope(front, back, envelope):
             lessThanTile = (front < 150 and front > 0 or TouchSensorValues[1] or TouchSensorValues[2])
             
             currentTime = time.time()
-            if lessThanTile or (TileMoved and (currentTime - startTileTime) > 2) or nextTile < 0 or firstMove TileTouchSensorRecorrections >= 3:
+            if lessThanTile or (TileMoved and (currentTime - startTileTime) > 2) or nextTile < 0 or firstMove or TileTouchSensorRecorrections >= 3:
                 #print("Finished Tile Movements:")
                 #print((currentTime - startTileTime))
                 #print([lessThanTile,TileMoved,nextTile < 0])
@@ -882,9 +907,12 @@ lastDirection = 0
 lastCoords = deepcopy(coords)
 lastLastCoords = deepcopy(lastCoords)
 
+backtracing = False
+
 def DFS(up,right,down,left):
     global lastBacktracePoint
     global lastCoords
+    global backtracing
     changeMap(up,right,down,left)
     decided = False
     directionToMove = -1
@@ -1041,6 +1069,7 @@ def DFS(up,right,down,left):
                 coords[0] -= 2
                 directionToMove = 2
     if directionToMove != -1:
+        backtracing = False
         print("Found a direction to move")
         print(directionToMove)
         print("-------------------------")
@@ -1051,6 +1080,7 @@ def DFS(up,right,down,left):
         
         return directionToMove
     elif len(backtraceArray) >= 2:
+        backtracing = True
         print("Backtracing")
         backtraceArray.pop()
         #Exploration logic failed to find a solution, needs to backtrack
@@ -1083,9 +1113,9 @@ def DFS(up,right,down,left):
         
         lastBacktracePoint = backtracePoint
         backtraceArray.append(lastBacktracePoint)
-        if lastLastCoords[0] == backtracePoint[0] and lastLastCoords[1] == backtracePoint[1] and backtracePoint[2] != robotZ:
-            print("DID A THING")
-            return DFS(up,right,down,left)
+        #if lastLastCoords[0] == backtracePoint[0] and lastLastCoords[1] == backtracePoint[1] and backtracePoint[2] != robotZ:
+        #    print("DID A THING")
+        #    return DFS(up,right,down,left)
         if coords[0] > backtracePoint[0]:
             #Needs to go DOWN
             directionToMove = 2
@@ -1438,13 +1468,20 @@ while True:
                 robotOnRamp = False
                 TicksOnRamp = 0
             else:
-                print(">Ramp PID")
+                #print(">Ramp PID")
+                
+                #superteams
+                blackTile()
+                MoveBackFromBlack(lidarArray)
+                
+                '''
+                checkVictims(lidarArray)
                 RampPID(lidarArray,IMUAngle)
                 TicksOnRamp += 1
                 
                 if TicksOnRamp > 5:
                     robotOnRamp = True
-                    robotWasOnRamp = True
+                    robotWasOnRamp = True'''
         else:
 
             StopMotors()
@@ -1463,9 +1500,11 @@ while True:
                 
             if tileColour() == 0:
                 print(">Black Tile")
-                blackTile()
+                
+                #superteams
+                '''blackTile()
                 MoveBackFromBlack(lidarArray)
-                lidarArray = readLidar()
+                lidarArray = readLidar()'''
             if TileTouchSensorRecorrections >= 3:
                 print(">Object Detected 3 Times Calling Black Tile")
                 blackTile()
@@ -1488,6 +1527,7 @@ while True:
             else:
                 paused = True
                 
+            #checkVictims(lidarArray)    
             updateBluetoothMaps(lidarArray)
                 
             print("--------------------------------------------")

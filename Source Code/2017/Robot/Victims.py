@@ -22,7 +22,7 @@ class MLX90614:
 
     def _readTemp(self, reg):
         temp = 1000
-        while temp > 100:
+        while temp > 100 or temp < -100:
             try:
                 temp = self._i2c.readS16(reg)
                 temp = temp * .02 - 273.15
@@ -49,7 +49,7 @@ RightCam = serial.Serial(
 RightHeat =  MLX90614(address=0x5b)
 LeftHeat = MLX90614(address=0x5a)
 
-victimHeat = 27.5
+victimHeat = 27.7
 MaxVictimHeat = 70
 
 #char return
@@ -244,8 +244,10 @@ def flashLEDs(side):
         
 if __name__ == "__main__":    
     while True:
-        print(readHeat(0))
-        print(readHeat(1))
+        #print(readHeat(0))
+        #print(readHeat(1))
+        print(RightHeat.get_obj_temp())
+        print(LeftHeat.get_obj_temp())
         time.sleep(1)
         
     
