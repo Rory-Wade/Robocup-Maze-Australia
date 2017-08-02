@@ -1,97 +1,109 @@
-# Grayscale Binary Filter Example
-import pyb, sensor, image, math, time
+# Smart Letter Detection Version 2
+import sensor, image, time, math
+
+from pyb import LED,UART,Pin,Servo
 
 sensor.reset()
-sensor.set_contrast(3)
-sensor.set_gainceiling(2)
-sensor.set_framesize(sensor.QVGA)
 sensor.set_pixformat(sensor.GRAYSCALE)
-sensor.skip_frames(30) # Let new settings take affect.
-sensor.set_auto_gain(False) # must be turned off for color tracking
-sensor.set_auto_whitebal(False) # must be turned off for color tracking
+sensor.set_framesize(sensor.QCIF)
+sensor.skip_frames(30)
+sensor.set_auto_gain(False)
+sensor.set_auto_whitebal(False)
 
-GRAYSCALE_THRESHOLD = [(0, 40)]
-high_threshold = (70, 255)
+ImageX = 80
+ImageY = 70
+
+sensor.set_windowing((80, 30, ImageX, ImageY))
+
+high_threshold = (0, 60)
+thresholds = (0, 120)
+
+centX = ImageX // 2
+centY = ImageY // 2
+
+uart = UART(3, 19200, timeout_char=10)
+
+Servo(2).pulse_width(1800)
+
+global best_match
 
 while(True):
-
     img = sensor.snapshot()
-    #img.midpoint(1, bias=0.5)
+
+    img.binary([high_threshold])
+    img.dilate(2)
     img.binary([high_threshold])
 
-    blobs = img.find_blobs(GRAYSCALE_THRESHOLD, merge=True)
+    most_middle = 10000
+    match_found = False
+    White2Black = 0
 
-    if blobs:
+    for blob in img.find_blobs([thresholds], pixels_threshold=50, area_threshold=10, merge=False):
 
-        # Find the index of the blob with the mosta pixels.
-        most_middle = 100000
-        best_match = 0
-        match_found = False
+        # touch side break
+        if blob.x() == 0 or blob.y() == 0 or blob.y() + blob.h() >= ImageY - 1 or blob.x() + blob.w() >= ImageX - 1:
+            continue
 
-        img.draw_cross(170,120, color=(20,20,20))
+        distance = math.floor( math.sqrt( math.pow((blob.cx() - centX),2 ) + math.pow((blob.cy() - centY),2)))
 
-        for i in range(len(blobs)):
+        if distance < most_middle and blob.pixels() < 3000 and blob.pixels() > 10:
+            most_middle = distance
+            best_match = blob
+            match_found = True
 
-            #img.draw_rectangle(blobs[i].rect(), color = (200,200,200))
-            #img.draw_string(blobs[i].x() + 20,blobs[i].y() - 10,"ID: %i"%(i), color = (100,100,100))
-            #img.draw_cross(blobs[i].cx(),blobs[i].cy(), color=(20,20,20))
+    if match_found:
 
-            #print(math.floor(math.sqrt( math.pow(2, (blobs[i].cx() - 160) ) + math.pow(2 , (blobs[i].cy() - 120)))))
-            distance = math.floor( math.sqrt( math.pow((blobs[i].cx() - 160),2 ) + math.pow((blobs[i].cy() - 120),2)))
+        MidY = best_match.cy()
+        BotX = best_match.x() + best_match.w()
+        TopX = best_match.x()
 
-            #print("ID: %i DistanceFrom: %i x: %i y: %i"%(i,distance,blobs[i].cx(),blobs[i].cy() ))
+        BlackCount = 0
+        lastWhite = True
 
-            if distance < most_middle: #and blobs[i].pixels() < 2300 and blobs[i].h() > blobs[i].w():
-                most_middle = distance
-                best_match = i
-                match_found = True
+        for X in range(TopX,BotX,1):
 
-        if blobs[best_match].pixels() > 150 and match_found:
+            if img.get_pixel(X, MidY) == 0 and lastWhite:
+                White2Black += 1
+                lastWhite = False
 
-            # Main Points of interest
-            MidX = blobs[best_match].cx()
-            BotY = blobs[best_match].y() + blobs[best_match].h()
-            TopY = blobs[best_match].y()
+            elif img.get_pixel(X, MidY) == 0:
+                BlackCount += 1
 
-            White2Black = 0
-            BlackCount = 0
-            lastWhite = True
+            elif img.get_pixel(X, MidY) != 0:
+                lastWhite = True
 
-            for Y in range(TopY,BotY,1):
+        if(img.get_pixel(TopX + 1, MidY) == 0 and White2Black == 1):
+            White2Black += 1
+            print(BlackCount)
 
-                if img.get_pixel(MidX, Y) == 0 and lastWhite:
-                    White2Black += 1
-                    lastWhite = False
+        img.draw_line( (TopX,MidY,BotX,MidY),color = (150,150,150))
+        lastWhite = True
 
-                elif img.get_pixel(MidX, Y) == 0:
-                    BlackCount += 1
+    LED(1).off()
+    LED(2).off()
+    LED(3).off()
 
-                elif img.get_pixel(MidX, Y) != 0:
-                    lastWhite = True
+    print(White2Black)
 
-            lastWhite = True
+    if White2Black == 3:
+        uart.write("C:S\n")
+        LED(1).on()
 
+    elif White2Black == 2:
+        uart.write("C:U\n")
+        LED(2).on()
 
-            if BlackCount > blobs[best_match].h()//2:
-                White2Black = 10
-                print("ERROR")
+    elif White2Black == 1:
+        uart.write("C:H\n")
+        LED(3).on()
 
-            img.draw_line((MidX,TopY,MidX,BotY),color = (150,150,150))
-            img.draw_rectangle(blobs[best_match].rect(), color = (150,150,150))
+    if uart.any() > 0:
+        line = uart.readline()
+        print(line)
+        if b"D1" in line:
+            Servo(2).pulse_width(1200)
+            time.sleep(500)
+            Servo(2).pulse_width(1800)
+            uart.write("C:OK2")
 
-            if White2Black == 3:
-                img.draw_string(blobs[best_match].x(),blobs[best_match].y() - 10, "S",color = (150,150,150))
-                print("SEEN: S")
-            elif White2Black == 2:
-                img.draw_string(blobs[best_match].x(),blobs[best_match].y() - 10, "U",color = (150,150,150))
-                print("SEEN: U")
-            elif White2Black == 1:
-                img.draw_string(blobs[best_match].x(),blobs[best_match].y() - 10, "H",color = (150,150,150))
-                print("SEEN: H")
-            elif White2Black == 1:
-                img.draw_string(blobs[best_match].x(),blobs[best_match].y() - 10, "INVALID",color = (150,150,150))
-                print("SEEN: H")
-            else:
-                print("White To Black: %i"%(White2Black))
-
-
+    match_found = False
