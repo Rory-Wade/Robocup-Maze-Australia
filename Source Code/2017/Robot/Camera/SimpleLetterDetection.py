@@ -83,8 +83,8 @@ while(True):
                 img.draw_string(blobs[best_match].x(),blobs[best_match].y() - 10, "S",color = (150,150,150))
                 print("SEEN: S")
             elif White2Black == 2:
-                img.draw_string(blobs[best_match].x(),blobs[best_match].y() - 10, "C",color = (150,150,150))
-                print("SEEN: C")
+                img.draw_string(blobs[best_match].x(),blobs[best_match].y() - 10, "U",color = (150,150,150))
+                print("SEEN: U")
             elif White2Black == 1:
                 img.draw_string(blobs[best_match].x(),blobs[best_match].y() - 10, "H",color = (150,150,150))
                 print("SEEN: H")
