@@ -1,5 +1,5 @@
 # RoboCup Junior Rescue Maze Australia 2017
-This repository is the home for all CAD file used to build the robot along with all the software (including Windows App) used at Robocup Junior Internationals 2017.[Mass Website](https://github.com/user/repo/blob/branch/other_file.md)
+This repository is the home for all CAD file used to build the robot along with all the software (including Windows App) used at Robocup Junior Internationals 2017. [Mass Website](https://github.com/user/repo/blob/branch/other_file.md)
 ![Robot Image](http://rawson.tech/mass/Mass_files/MassFrontImage.jpg)
 ## Software
 The code placed on the robot is found at Source Code/2017/Robot. 
