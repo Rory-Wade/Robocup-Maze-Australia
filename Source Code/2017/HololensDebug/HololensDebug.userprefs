@@ -1,0 +1,13 @@
+﻿<Properties StartupItem="HololensDebug.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Main.cs">
+    <Files>
+      <File FileName="Assets\Main.cs" Line="416" Column="9" />
+      <File FileName="Assets\MazeGenerator.cs" Line="257" Column="51" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
